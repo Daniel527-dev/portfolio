@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Portfolio
 
-## Getting Started
+A full-stack personal portfolio and blog in the style of [joshwcomeau.com](https://www.joshwcomeau.com/), with ideas borrowed from [brittanychiang.com](https://brittanychiang.com/) (spotlight cursor, experience list) and [jhey.dev](https://jhey.dev/) (playful micro-interactions).
 
-First, run the development server:
+Built with **Next.js 16 (App Router)**, **React 19**, **MDX** and **SQLite** (`node:sqlite`, so there is nothing native to compile).
+
+## Features
+
+**Front end**
+- Home page with a hero section, an animated SVG mascot whose eyes follow the cursor (click it to wave), and sparkles around the title
+- Recently Published list, Browse by Category, a Popular Content list ranked by real view counts, featured projects and a newsletter signup
+- MDX articles with a sticky table of contents, syntax-highlighted code blocks with a copy button, callouts, and interactive demos (spring physics, flexbox playground, effect cleanup)
+- A like button that fills a heart with each click (up to 10 per visitor), with particle bursts and sound
+- Light and dark themes with no flash on load, a sound toggle (sounds are generated with Web Audio, so there are no audio files), Ctrl/⌘ + K search, a cursor spotlight, a responsive mobile menu and a custom 404 page
+- Respects `prefers-reduced-motion`; semantic HTML, a skip link, focus styles and ARIA labels throughout
+
+**Back end**
+- `POST/GET /api/likes/[slug]`: batched likes, capped per visitor in SQL
+- `POST/GET /api/views/[slug]`: view counter (one view per visitor every 30 minutes)
+- `POST /api/subscribe`: newsletter signup with validation, duplicate detection and a honeypot
+- `POST /api/contact`: contact form with validation, a honeypot and rate limiting
+- `/admin`: password-protected dashboard (HMAC-signed httpOnly cookie, server actions) showing stats, messages and subscribers
+- `/rss.xml`, `/sitemap.xml`, `/robots.txt` and Open Graph metadata
+
+Visitors are identified by a salted SHA-256 hash of their IP address and user agent. No raw personal data is stored.
+
+## Getting started
+
+Requires **Node.js 22.13 or newer**.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # then set ADMIN_PASSWORD and SESSION_SECRET
+npm run dev                  # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The SQLite database is created automatically at `data/portfolio.db`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Script | What it does |
+| --- | --- |
+| `npm run dev` | Development server |
+| `npm run build` / `npm start` | Production build and server |
+| `npm test` | Unit tests for the data layer and validation (`node:test`) |
+| `npm run typecheck` | Generate route types and run `tsc` |
+| `npm run lint` | ESLint |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Making it yours
 
-## Learn More
+- **Name, bio, socials, projects, experience:** `src/site.config.ts`
+- **Articles:** add an `.mdx` file to `content/posts/` (the filename becomes the URL slug). Frontmatter fields:
+  ```yaml
+  title: My Article
+  abstract: One or two sentences shown in lists and previews.
+  publishedOn: 2026-10-01
+  updatedOn: 2026-10-05   # optional
+  category: css           # one of the slugs in site.config.ts
+  ```
+  MDX can use `<Callout type="info|warning|success" title="…">`, `<SpringDemo />`, `<FlexPlayground />` and `<CleanupDemo />`. To register more components, see `src/lib/mdx.tsx`.
+- **Colours, fonts and spacing:** CSS custom properties at the top of `src/app/globals.css`
 
-To learn more about Next.js, take a look at the following resources:
+## Project structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+content/posts/          MDX articles
+src/site.config.ts      all personal content
+src/app/                routes (pages, API route handlers, admin, RSS, sitemap)
+src/components/         UI components (+ components/mdx for article widgets)
+src/lib/                db.ts (SQLite), content.ts (MDX loading), mdx.tsx, auth.ts, validation.ts, request.ts, sound.ts
+tests/                  node:test unit tests
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deploying
 
-## Deploy on Vercel
+The app needs a Node.js server with a writable disk for SQLite. That rules out purely static or serverless hosts unless you swap the database.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **VPS / Docker / Railway / Render / Fly.io:** `npm run build && npm start`. Mount a persistent volume and point `DATABASE_PATH` at it.
+- **Vercel:** works for the pages, but the filesystem is ephemeral. Replace `src/lib/db.ts` with a hosted database (Turso/libSQL, Postgres, etc.). The function signatures can stay the same.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Set `SITE_URL` to the public URL so RSS, the sitemap and Open Graph links are correct.
+
+The rate limiter lives in memory. If you run several server instances, move it to Redis or a similar shared store.
