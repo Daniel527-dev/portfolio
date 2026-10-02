@@ -1,0 +1,10 @@
+# Netlify deploys Next.js through its OpenNext adapter (installed automatically).
+# These settings override whatever is entered in the Netlify UI, so a wrong
+# publish directory there can't break the deploy.
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  # node:sqlite needs Node 22.13 or newer.
+  NODE_VERSION = "22"
