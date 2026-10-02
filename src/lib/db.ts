@@ -1,5 +1,6 @@
 import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
 // One SQLite file holds every piece of dynamic state: likes, views,
@@ -42,14 +43,29 @@ export function openDatabase(file: string) {
   return db;
 }
 
+// Serverless hosts (Netlify, Vercel, AWS Lambda) mount the app read-only and
+// only allow writes to the temp dir, so fall back there when ./data isn't writable.
+// Data in the temp dir does not survive cold starts or redeploys.
+function databaseFile() {
+  if (process.env.DATABASE_PATH) return process.env.DATABASE_PATH;
+  const dir = path.join(process.cwd(), "data");
+  try {
+    fs.mkdirSync(dir, { recursive: true });
+    fs.accessSync(dir, fs.constants.W_OK);
+    return path.join(dir, "portfolio.db");
+  } catch {
+    const file = path.join(os.tmpdir(), "portfolio.db");
+    console.warn(`[db] ${dir} is not writable; using ${file} (not persistent).`);
+    return file;
+  }
+}
+
 // Reuse one connection across hot reloads in development.
 const globalForDb = globalThis as unknown as { __portfolioDb?: DatabaseSync };
 
 export function getDb() {
   if (!globalForDb.__portfolioDb) {
-    const file =
-      process.env.DATABASE_PATH ?? path.join(process.cwd(), "data", "portfolio.db");
-    globalForDb.__portfolioDb = openDatabase(file);
+    globalForDb.__portfolioDb = openDatabase(databaseFile());
   }
   return globalForDb.__portfolioDb;
 }
