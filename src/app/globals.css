@@ -348,12 +348,6 @@ main {
   border-top: 3px dotted var(--color-border);
 }
 
-/* sugar-high output */
-.sh__line {
-  display: block;
-  min-height: 1lh;
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
