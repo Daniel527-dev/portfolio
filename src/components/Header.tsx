@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getPostMetas } from "@/lib/content";
 import { categoryLabel, site } from "@/site.config";
+import { RssIcon } from "./icons";
 import MobileMenu from "./MobileMenu";
 import NavLinks from "./NavLinks";
 import Search from "./Search";
@@ -36,6 +37,9 @@ export default function Header() {
 
         <div className={styles.actions}>
           <Search items={searchItems} />
+          <a className={`${styles.iconButton} ${styles.desktopOnly}`} href="/rss.xml" aria-label="RSS feed" title="RSS feed">
+            <RssIcon />
+          </a>
           <SoundToggle />
           <ThemeToggle />
           <MobileMenu links={site.nav} />

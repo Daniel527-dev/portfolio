@@ -13,6 +13,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: { default: `${site.name} · ${site.role}`, template: `%s · ${site.name}` },
   description: site.description,
+  alternates: { types: { "application/rss+xml": "/rss.xml" } },
   openGraph: { type: "website", siteName: site.name },
 };
 
