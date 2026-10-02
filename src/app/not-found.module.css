@@ -1,0 +1,36 @@
+.page {
+  display: grid;
+  justify-items: center;
+  padding-top: clamp(48px, 10vw, 120px);
+  text-align: center;
+}
+
+.page :global(.lede) {
+  margin-inline: auto;
+}
+
+.code {
+  font-size: clamp(5rem, 3rem + 10vw, 9rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--color-primary);
+}
+
+.spin {
+  display: inline-block;
+  animation: spin 6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.links {
+  display: flex;
+  gap: 16px;
+  margin-top: 32px;
+  font-weight: 700;
+}
