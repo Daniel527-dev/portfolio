@@ -118,6 +118,33 @@
   transform: scale(0.88);
 }
 
+/* theme toggle: the sun's core grows into a moon while its rays retract */
+
+.themeIcon {
+  overflow: visible;
+}
+
+.sunCore,
+.moonCut,
+.sunRays {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 500ms var(--ease-spring), opacity 300ms;
+}
+
+.themeIcon[data-dark="true"] .sunCore {
+  transform: scale(1.75);
+}
+
+.themeIcon[data-dark="true"] .moonCut {
+  transform: translate(-12px, 1px);
+}
+
+.themeIcon[data-dark="true"] .sunRays {
+  transform: rotate(45deg) scale(0.4);
+  opacity: 0;
+}
+
 /* ---------- responsive ---------- */
 
 .mobileOnly {

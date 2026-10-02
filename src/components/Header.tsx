@@ -2,6 +2,8 @@ import Link from "next/link";
 import { site } from "@/site.config";
 import MobileMenu from "./MobileMenu";
 import NavLinks from "./NavLinks";
+import SoundToggle from "./SoundToggle";
+import ThemeToggle from "./ThemeToggle";
 import styles from "./Header.module.css";
 
 export default function Header() {
@@ -24,6 +26,8 @@ export default function Header() {
         <NavLinks links={site.nav} />
 
         <div className={styles.actions}>
+          <SoundToggle />
+          <ThemeToggle />
           <MobileMenu links={site.nav} />
         </div>
       </div>
