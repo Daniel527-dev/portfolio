@@ -178,6 +178,26 @@ kbd {
   font-family: var(--font-mono);
 }
 
+main {
+  flex: 1;
+}
+
+.skip-link {
+  position: absolute;
+  left: 16px;
+  top: -100px;
+  z-index: 100;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: white;
+  font-weight: 700;
+}
+
+.skip-link:focus {
+  top: 12px;
+}
+
 /* ---------- utilities ---------- */
 
 .wrapper {

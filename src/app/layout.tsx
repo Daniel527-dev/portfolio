@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Figtree, JetBrains_Mono } from "next/font/google";
+import Footer from "@/components/Footer";
+import Header from "@/components/Header";
 import { site } from "@/site.config";
 import "./globals.css";
 
@@ -27,7 +29,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${figtree.variable} ${jetbrains.variable}`}
     >
       <body>
-        {children}
+        <a href="#main" className="skip-link">
+          Skip to content
+        </a>
+        <Header />
+        <main id="main">{children}</main>
+        <Footer />
       </body>
     </html>
   );
