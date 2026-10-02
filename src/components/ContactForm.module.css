@@ -1,0 +1,107 @@
+.form {
+  display: grid;
+  gap: 20px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field label {
+  font-weight: 700;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  transition: border-color 200ms, box-shadow 200ms;
+}
+
+.field textarea {
+  resize: vertical;
+}
+
+.field input:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px var(--color-primary-soft);
+}
+
+.field [aria-invalid="true"] {
+  border-color: var(--color-error);
+}
+
+.error {
+  color: var(--color-error);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.submit {
+  justify-self: start;
+  padding: 12px 28px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(100deg, var(--color-primary), var(--color-secondary));
+  color: white;
+  font-weight: 800;
+  box-shadow: 0 8px 20px hsl(300deg 70% 50% / 0.3);
+  transition: transform 300ms var(--ease-spring), filter 200ms;
+}
+
+.submit:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+.submit:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+.sent {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+  padding: 32px;
+  border-radius: var(--radius-lg);
+  background: var(--color-success-soft);
+}
+
+.sentEmoji {
+  font-size: 3rem;
+  line-height: 1;
+  animation: bounce-in 600ms var(--ease-spring);
+}
+
+@keyframes bounce-in {
+  from {
+    transform: scale(0) rotate(-30deg);
+  }
+}
+
+.ghost {
+  padding: 8px 18px;
+  border: 2px solid var(--color-border);
+  border-radius: 999px;
+  background: transparent;
+  font-weight: 700;
+}
+
+@media (max-width: 600px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+}
