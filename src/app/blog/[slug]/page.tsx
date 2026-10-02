@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import LikeButton from "@/components/LikeButton";
 import NewsletterForm from "@/components/NewsletterForm";
 import TableOfContents from "@/components/TableOfContents";
+import ViewCounter from "@/components/ViewCounter";
 import { formatDate, getAllPosts, getPost } from "@/lib/content";
 import { renderMdx } from "@/lib/mdx";
 import { categoryLabel } from "@/site.config";
@@ -53,6 +55,8 @@ export default async function ArticlePage({ params }: PageProps<"/blog/[slug]">)
             <time dateTime={post.publishedOn}>{formatDate(post.publishedOn)}</time>
             <span aria-hidden="true">·</span>
             <span>{post.minutes} min read</span>
+            <span aria-hidden="true">·</span>
+            <ViewCounter slug={slug} />
           </div>
         </div>
       </header>
@@ -68,6 +72,7 @@ export default async function ArticlePage({ params }: PageProps<"/blog/[slug]">)
         {post.updatedOn && (
           <p className={styles.updated}>Last updated {formatDate(post.updatedOn)}</p>
         )}
+        <LikeButton slug={slug} />
 
         <nav className={styles.pager} aria-label="More articles">
           {older ? (

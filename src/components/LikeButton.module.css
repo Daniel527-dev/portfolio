@@ -1,0 +1,92 @@
+.wrapper {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 88px;
+  height: 88px;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-surface);
+  box-shadow: 0 1px 2px hsl(var(--shadow-color) / 0.1), 0 10px 30px hsl(340deg 80% 50% / 0.18);
+  transition: transform 350ms var(--ease-spring);
+}
+
+.button:hover {
+  transform: scale(1.06);
+}
+
+.button:active {
+  transform: scale(0.9);
+}
+
+.button[data-maxed="true"] {
+  animation: celebrate 600ms var(--ease-spring);
+}
+
+@keyframes celebrate {
+  50% {
+    transform: scale(1.18) rotate(-8deg);
+  }
+}
+
+.heart {
+  width: 52px;
+  height: 52px;
+  overflow: visible;
+}
+
+.heartOutline {
+  fill: none;
+  stroke: var(--color-secondary);
+  stroke-width: 1.6;
+}
+
+.heartFill {
+  fill: var(--color-secondary);
+}
+
+.fillRect {
+  transition: y 300ms var(--ease-spring), height 300ms var(--ease-spring);
+}
+
+.particle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  margin: -4px;
+  border-radius: 50%;
+  background: hsl(var(--hue) 95% 60%);
+  pointer-events: none;
+  animation: burst 650ms var(--ease-out) forwards;
+}
+
+@keyframes burst {
+  from {
+    transform: rotate(var(--angle)) translateY(0) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: rotate(var(--angle)) translateY(calc(var(--distance) * -1)) scale(0.2);
+    opacity: 0;
+  }
+}
+
+.count {
+  margin-top: 8px;
+  font-size: 1.125rem;
+  font-weight: 800;
+}
+
+.hint {
+  font-size: 0.875rem;
+  color: var(--color-muted);
+}
