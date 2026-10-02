@@ -1,13 +1,23 @@
 import type { Metadata, Viewport } from "next";
-import { Figtree, JetBrains_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Spotlight from "@/components/Spotlight";
 import { site } from "@/site.config";
 import "./globals.css";
 
-const figtree = Figtree({ subsets: ["latin"], variable: "--font-figtree" });
-const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains" });
+// Fonts are self-hosted from npm (@fontsource-variable) rather than fetched from
+// Google Fonts, so dev and build never depend on reaching fonts.googleapis.com.
+const figtree = localFont({
+  src: "../../node_modules/@fontsource-variable/figtree/files/figtree-latin-wght-normal.woff2",
+  weight: "300 900",
+  variable: "--font-figtree",
+});
+const jetbrains = localFont({
+  src: "../../node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2",
+  weight: "100 800",
+  variable: "--font-jetbrains",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
