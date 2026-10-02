@@ -1,0 +1,95 @@
+---
+title: Five Underrated JavaScript APIs You Can Use Today
+abstract: Deep cloning without libraries, grouping arrays in one line, human-friendly relative dates. The platform has quietly gained some excellent built-ins. Here are my favourites.
+publishedOn: 2026-04-11
+category: javascript
+---
+
+Every year, JavaScript picks up a few new built-ins that make an old utility library unnecessary. They rarely get much fanfare, so here are five that I reach for all the time.
+
+## structuredClone for real deep copies
+
+The old trick of `JSON.parse(JSON.stringify(obj))` silently breaks dates, maps, sets and anything with circular references. `structuredClone` handles all of them:
+
+```js
+const original = {
+  createdAt: new Date(),
+  tags: new Set(["css", "react"]),
+};
+original.self = original; // circular!
+
+const copy = structuredClone(original);
+copy.createdAt instanceof Date; // true
+copy.self === copy;             // true
+```
+
+It can't clone functions or DOM nodes, but for plain data it's exactly what you want.
+
+## Object.groupBy
+
+Grouping an array used to mean writing a `reduce`. Now it's one call:
+
+```js
+const posts = [
+  { title: "Springs", category: "animation" },
+  { title: "Flexbox", category: "css" },
+  { title: "Grid", category: "css" },
+];
+
+const byCategory = Object.groupBy(posts, (post) => post.category);
+// { animation: [...1 post], css: [...2 posts] }
+```
+
+There's also `Map.groupBy` if you want keys that aren't strings.
+
+## Array.prototype.at
+
+Need the last item of an array? Skip the `arr[arr.length - 1]` dance:
+
+```js
+const steps = ["plan", "build", "ship"];
+steps.at(-1); // "ship"
+steps.at(-2); // "build"
+```
+
+## Intl.RelativeTimeFormat
+
+"3 days ago" and "in 2 hours" are surprisingly fiddly to get right in every language. The `Intl` API does it for you:
+
+```js
+const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+
+rtf.format(-1, "day");   // "yesterday"
+rtf.format(3, "week");   // "in 3 weeks"
+rtf.format(-2, "hour");  // "2 hours ago"
+```
+
+Swap `"en"` for any locale and the output is translated and grammatically correct.
+
+<Callout type="info" title="The whole Intl family is great">
+  Have a look at `Intl.NumberFormat` (currencies, compact numbers like "1.2K"), `Intl.ListFormat` ("a, b, and c") and `Intl.PluralRules` too. They're all built into every modern browser and Node.js.
+</Callout>
+
+## AbortController, beyond fetch
+
+Most people know `AbortController` for cancelling requests. Fewer know it can remove event listeners too, several at once:
+
+```js
+const controller = new AbortController();
+const { signal } = controller;
+
+window.addEventListener("resize", onResize, { signal });
+window.addEventListener("scroll", onScroll, { signal });
+document.addEventListener("keydown", onKey, { signal });
+
+// Later: remove all three listeners in one go
+controller.abort();
+```
+
+No more keeping references to every handler just so you can remove it later.
+
+## Check before you ship
+
+All five are supported in current versions of Chrome, Firefox, Safari and Node.js, but `Object.groupBy` arrived more recently than the others. If you support older browsers, check your analytics, or add a small polyfill.
+
+The best dependency is the one you don't have to install.

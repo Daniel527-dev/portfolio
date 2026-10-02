@@ -1,0 +1,94 @@
+---
+title: Why Your useEffect Needs a Cleanup Function
+abstract: Intervals that never stop, event listeners that pile up, requests that resolve after you've left the page. A hands-on look at effect cleanup and why React Strict Mode runs your effects twice.
+publishedOn: 2026-06-20
+updatedOn: 2026-09-01
+category: react
+---
+
+`useEffect` lets a component reach outside of React: start a timer, subscribe to an event, open a WebSocket. But anything you _start_ in an effect is something that might need to be _stopped_ later.
+
+That's what the cleanup function is for, and forgetting it is one of the most common bugs I see in React code reviews.
+
+## A timer that never dies
+
+Here's a tiny component that counts seconds:
+
+```jsx
+function Ticker() {
+  const [count, setCount] = React.useState(0);
+
+  React.useEffect(() => {
+    window.setInterval(() => {
+      setCount((c) => c + 1);
+    }, 1000);
+  }, []);
+
+  return <p>{count}s</p>;
+}
+```
+
+Looks fine, right? The problem shows up when the component **unmounts**. React removes it from the screen, but the interval keeps running forever, because nothing told it to stop.
+
+Try it yourself. Leave the checkbox unticked, then mount and unmount the ticker a few times:
+
+<CleanupDemo />
+
+Every mount starts a new interval, and none of them are ever cleared. In a real app, that's wasted CPU at best, and confusing bugs at worst, like state updates arriving from components that no longer exist.
+
+## The fix: return a function
+
+If your effect returns a function, React calls it before the component unmounts, and also before re-running the effect when its dependencies change:
+
+```jsx
+React.useEffect(() => {
+  const intervalId = window.setInterval(() => {
+    setCount((c) => c + 1);
+  }, 1000);
+
+  return () => {
+    window.clearInterval(intervalId);
+  };
+}, []);
+```
+
+Tick the checkbox in the demo and the "running" counter stays at one, no matter how many times you toggle.
+
+## Why does Strict Mode run effects twice?
+
+In development, React's Strict Mode deliberately mounts every component, unmounts it, and mounts it again. People often think this is a bug. It's actually a gift.
+
+<Callout type="info" title="Strict Mode is a stress test">
+  The double mount simulates a user navigating away and coming back. If your effect is missing a cleanup, you'll see the symptom immediately, like two intervals ticking at once, instead of discovering it weeks later in production.
+</Callout>
+
+## A checklist for effects
+
+Whenever you write an effect, ask: _what did I start?_ Then make sure the cleanup undoes it.
+
+- `setInterval` / `setTimeout` → `clearInterval` / `clearTimeout`
+- `addEventListener` → `removeEventListener`
+- `new WebSocket()` → `socket.close()`
+- `fetch()` → abort it with an `AbortController`
+- Third-party subscriptions → call whatever `unsubscribe` they return
+
+That last pattern is worth showing, since it's easy to miss:
+
+```jsx
+React.useEffect(() => {
+  const controller = new AbortController();
+
+  fetch(`/api/users/${id}`, { signal: controller.signal })
+    .then((res) => res.json())
+    .then(setUser)
+    .catch((err) => {
+      if (err.name !== "AbortError") throw err;
+    });
+
+  return () => controller.abort();
+}, [id]);
+```
+
+Now, if `id` changes before the first request finishes, the stale request is cancelled, and it can never overwrite the newer data.
+
+Effects are about synchronization: keeping something outside React in step with your component. Cleanup is the other half of that contract.

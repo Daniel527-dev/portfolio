@@ -1,0 +1,91 @@
+---
+title: Building a Like Button, From Database to Delight
+abstract: The heart at the bottom of every article on this site is a tiny full-stack feature. Here's how it works, from the SQLite table and API route to optimistic updates and batched requests.
+publishedOn: 2026-09-28
+category: nextjs
+---
+
+Scroll to the bottom of this article and you'll find a heart. Click it and it fills up a little, makes a soft pop, and bursts into particles. You can click it up to ten times.
+
+It's a small thing, but it touches every layer of the stack. Let's walk through it, from the database up.
+
+## The data model
+
+Each visitor can like an article up to ten times, so we need to remember _who_ liked _what_, and how many times. One table does the job:
+
+```sql
+CREATE TABLE likes (
+  slug    TEXT NOT NULL,
+  visitor TEXT NOT NULL,
+  count   INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (slug, visitor)
+);
+```
+
+The total for an article is just `SUM(count)` for its slug. The composite primary key guarantees one row per visitor per article.
+
+<Callout type="info" title="Who is a 'visitor'?">
+  I don't want accounts or tracking cookies for a like button. Instead, the server hashes the IP address and user agent together with a secret salt. The raw values never touch the database, and the hash is only good for telling repeat clicks apart.
+</Callout>
+
+## Capping likes in a single query
+
+The rule "never more than ten" lives in the database, not just the UI. An upsert with `MIN()` makes it impossible to exceed the cap, even if someone fires requests by hand:
+
+```sql
+INSERT INTO likes (slug, visitor, count) VALUES (?, ?, MIN(?, 10))
+ON CONFLICT(slug, visitor)
+DO UPDATE SET count = MIN(count + ?, 10);
+```
+
+## The API route
+
+In Next.js, a route handler exposes this as a tiny JSON API. It validates the slug, rate-limits the visitor, and returns the fresh totals:
+
+```ts
+export async function POST(req: Request, ctx: RouteContext<"/api/likes/[slug]">) {
+  const { slug } = await ctx.params;
+  if (!getPost(slug)) {
+    return Response.json({ error: "Unknown article" }, { status: 404 });
+  }
+
+  const visitor = visitorId(req);
+  const body = await readJson(req);
+  const amount = typeof body?.amount === "number" ? body.amount : 1;
+
+  return Response.json(addLikes(getDb(), slug, visitor, amount));
+}
+```
+
+## Making it feel instant
+
+If the heart waited for the server before filling, every click would lag by a network round trip. Instead, the client updates **optimistically**: it bumps the count right away and trusts the server to agree.
+
+Clicking ten times quickly would still mean ten requests, though. So clicks are **batched**. Each click resets a short timer, and when you pause for half a second, one request goes out with the total:
+
+```ts
+function like() {
+  setMine((m) => m + 1);
+  pending.current++;
+
+  window.clearTimeout(timer.current);
+  timer.current = window.setTimeout(flush, 500);
+}
+```
+
+When the response arrives, we reconcile with the server's numbers, but only if no new clicks happened in the meantime. Otherwise we'd briefly snap backwards.
+
+## The delight layer
+
+The fun part is all front-end polish:
+
+- The heart's fill is an SVG `clipPath` whose height grows with each click, with a springy transition.
+- Each click plays a short "pop", generated with the Web Audio API so there's no audio file to download. The pitch rises as you get closer to ten.
+- Particles fly out in a ring using a single CSS keyframe and a custom property for each particle's angle.
+- Hitting the maximum triggers a bigger burst and a little celebration wobble.
+
+None of it is necessary. All of it makes people smile, which is kind of the point.
+
+<Callout type="success" title="Try it!">
+  The like button is right below this article. Go on, you know you want to. 💖
+</Callout>

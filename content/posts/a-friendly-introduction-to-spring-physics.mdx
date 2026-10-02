@@ -1,0 +1,76 @@
+---
+title: A Friendly Introduction to Spring Physics
+abstract: Springs make interfaces feel alive. Instead of picking a duration and an easing curve, you describe how something should move, and physics does the rest. Let's build an intuition for stiffness and damping with a live playground.
+publishedOn: 2026-09-14
+category: animation
+---
+
+Most CSS animations are built on _time_. You say "move this box 200 pixels over 300 milliseconds, using `ease-out`," and the browser draws the frames in between.
+
+That works great, until the animation gets interrupted. Hover over a button, then move away halfway through the transition, and the motion reverses with an abrupt change in speed. It feels mechanical, because real objects don't work that way. They have **momentum**.
+
+Spring animations take a different approach. Instead of a duration, you describe a _physical system_, and the motion falls out of the simulation.
+
+## The two numbers that matter
+
+A spring animation is mostly controlled by two values:
+
+- **Stiffness** is how strongly the spring pulls toward its target. A stiff spring snaps into place quickly; a loose one drifts lazily.
+- **Damping** is friction. It drains energy from the system. Low damping means lots of wobble; high damping means the object glides to a stop without overshooting.
+
+The best way to understand them is to play. Try a low damping value (around 5) with high stiffness, then crank damping up to 40:
+
+<SpringDemo />
+
+Notice how you never chose a duration. The animation takes as long as the physics says it should.
+
+## What's happening under the hood
+
+Every frame, we calculate the force acting on the ball using [Hooke's law](https://en.wikipedia.org/wiki/Hooke%27s_law), plus a friction term:
+
+```js
+const springForce = -stiffness * (position - target);
+const dampingForce = -damping * velocity;
+const acceleration = springForce + dampingForce; // mass = 1
+
+velocity += acceleration * deltaTime;
+position += velocity * deltaTime;
+```
+
+That's the entire engine! Six lines. We keep running it with `requestAnimationFrame` until the ball is practically at rest.
+
+<Callout type="info" title="Why update velocity first?">
+  Updating velocity before position is called _semi-implicit Euler_ integration. It's a tiny change from the obvious approach, but it keeps the simulation stable, so the spring doesn't gain energy and explode at large time steps.
+</Callout>
+
+## Interruptions for free
+
+Here's the magic. Because the simulation tracks velocity, changing the target mid-flight just works. The ball keeps its momentum and smoothly curves toward the new destination. Press the button rapidly in the demo above and see for yourself.
+
+With keyframe animations, you'd need to calculate where the element currently is, cancel the old animation, and start a new one with a matching speed. Springs handle all of that automatically.
+
+## When should you reach for springs?
+
+I use them whenever an animation is **triggered by the user** and could be interrupted: drag-and-drop, toggles, drawers, modals, hover effects. For purely decorative, looping animations (like a loading spinner), regular CSS keyframes are simpler and just as good.
+
+<Callout type="success" title="A good starting point">
+  Stiffness 170 and damping 26 feel natural for most UI. That's the default in React Spring's "default" preset, and it's a great place to start tuning by feel.
+</Callout>
+
+## Respect reduced motion
+
+Bouncy motion can be uncomfortable for people with vestibular disorders. Always check the `prefers-reduced-motion` media query and swap springs for an instant change or a short fade:
+
+```js
+const prefersReducedMotion = window.matchMedia(
+  "(prefers-reduced-motion: reduce)"
+).matches;
+
+if (prefersReducedMotion) {
+  element.style.transform = `translateX(${target}px)`;
+} else {
+  animateWithSpring(element, target);
+}
+```
+
+Springs are one of those ideas that seem intimidating until you see how little code they need. Once they click, it's hard to go back to plain easing curves.

@@ -1,0 +1,67 @@
+---
+title: Understanding Flexbox Alignment, Visually
+abstract: justify-content or align-items? Main axis or cross axis? If you still guess which property to use, this interactive guide will fix that for good.
+publishedOn: 2026-08-02
+category: css
+---
+
+Here's a confession: for years, every time I needed to center something with Flexbox, I'd try `justify-content`, see that it did the wrong thing, and switch to `align-items`. It worked, but I didn't really understand _why_.
+
+The secret is that Flexbox alignment isn't about horizontal and vertical. It's about **axes**.
+
+## The primary axis and the cross axis
+
+Every flex container has two axes:
+
+- The **primary axis** (often called the _main axis_) runs in the direction set by `flex-direction`. With the default `row`, it goes left to right.
+- The **cross axis** is perpendicular to it.
+
+And the two properties map neatly onto them:
+
+- `justify-content` distributes items along the **primary** axis.
+- `align-items` positions items along the **cross** axis.
+
+That's the whole mental model. When you flip `flex-direction` to `column`, the axes rotate, and so do the effects of both properties. Try it:
+
+<FlexPlayground />
+
+## Why "justify" and "align" behave differently
+
+You might notice that `justify-content` has options like `space-between`, while `align-items` has `stretch` and `baseline`. That's because they solve different problems.
+
+Along the primary axis, items are laid out **as a group**. They sit side by side, so the question is how to distribute the leftover space between them.
+
+Along the cross axis, each item is positioned **individually**. There's no "between" to worry about. Each item just decides where it sits in its own lane, which is why you can override it per item:
+
+```css
+.special-item {
+  align-self: flex-end;
+}
+```
+
+<Callout type="warning" title="There's no justify-self in Flexbox">
+  Because items along the primary axis are treated as a group, `justify-self` is ignored in a flex container. If you need to push a single item to the end, use `margin-left: auto` instead. Auto margins soak up all the available space.
+</Callout>
+
+## Perfect centering, explained
+
+So the classic centering snippet makes complete sense now:
+
+```css
+.center {
+  display: flex;
+  justify-content: center; /* primary axis */
+  align-items: center;     /* cross axis */
+}
+```
+
+We center the group along the primary axis, then center each item along the cross axis. No guessing required.
+
+## A quick cheat sheet
+
+1. Decide which way your items flow. That's `flex-direction`, and it defines the primary axis.
+2. Use `justify-content` to distribute items along that flow.
+3. Use `align-items` to position them in the other direction.
+4. Reach for `align-self` or auto margins to break the rules for a single item.
+
+Once you start thinking in axes, Flexbox stops being a guessing game.
