@@ -178,6 +178,20 @@ kbd {
   font-family: var(--font-mono);
 }
 
+/* Soft glow that trails the cursor (positions set by <Spotlight />). */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    600px circle at var(--cursor-x, -1000px) var(--cursor-y, -1000px),
+    color-mix(in srgb, var(--color-primary) 9%, transparent),
+    transparent 80%
+  );
+}
+
 main {
   flex: 1;
 }
