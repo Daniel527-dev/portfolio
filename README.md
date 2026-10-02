@@ -71,10 +71,13 @@ tests/                  node:test unit tests
 
 ## Deploying
 
-The app needs a Node.js server with a writable disk for SQLite. That rules out purely static or serverless hosts unless you swap the database.
-
+- **Netlify:** connect the GitHub repo and deploy. `netlify.toml` already sets the build command (`npm run build`), the publish directory (`.next`) and Node 22, and Netlify adds its Next.js adapter automatically. Leave the build settings in the Netlify UI empty, or make them match these values.
 - **VPS / Docker / Railway / Render / Fly.io:** `npm run build && npm start`. Mount a persistent volume and point `DATABASE_PATH` at it.
-- **Vercel:** works for the pages, but the filesystem is ephemeral. Replace `src/lib/db.ts` with a hosted database (Turso/libSQL, Postgres, etc.). The function signatures can stay the same.
+- **Vercel:** deploys with no extra configuration.
+
+Serverless hosts (Netlify, Vercel) only allow writes to the temp directory, so the database falls back to it there. The site works, but likes, views, subscribers and messages reset whenever the server function restarts or the site is redeployed. For durable data on those hosts, replace `src/lib/db.ts` with a hosted database (Turso/libSQL, Postgres, Netlify Blobs, etc.). The function signatures can stay the same.
+
+On Netlify and Vercel, set `ADMIN_PASSWORD` and `SESSION_SECRET` as environment variables in the site settings. `.env.local` is never committed.
 
 Set `SITE_URL` to the public URL so RSS, the sitemap and Open Graph links are correct.
 
