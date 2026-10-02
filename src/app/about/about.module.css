@@ -1,0 +1,230 @@
+.page {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 80px;
+  padding-top: clamp(40px, 6vw, 72px);
+}
+
+/* ---------- sticky identity column ---------- */
+
+.side {
+  position: sticky;
+  top: calc(var(--header-height) + 32px);
+  align-self: start;
+}
+
+.mascot {
+  width: 180px;
+}
+
+.name {
+  margin-top: 24px;
+  font-size: 2.5rem;
+  font-weight: 900;
+}
+
+.role {
+  margin-top: 4px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.tagline {
+  margin-top: 12px;
+  color: var(--color-muted);
+}
+
+.facts {
+  display: grid;
+  gap: 6px;
+  margin-top: 20px;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9375rem;
+}
+
+.socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 20px;
+  padding: 0;
+  list-style: none;
+}
+
+.socials a {
+  font-weight: 700;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.socials a:hover {
+  color: var(--color-primary);
+}
+
+/* ---------- main column ---------- */
+
+.section + .section {
+  margin-top: 72px;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+}
+
+.bio {
+  display: grid;
+  gap: 1.1em;
+  margin-top: 20px;
+  font-size: 1.125rem;
+  color: var(--color-muted);
+}
+
+.bio a {
+  font-weight: 700;
+}
+
+/* Hovering one job dims the others, so the focused one pops. */
+.timeline {
+  display: grid;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 0;
+  list-style: none;
+}
+
+.job {
+  position: relative;
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 16px;
+  padding: 20px 24px;
+  margin-inline: -24px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  transition: opacity 250ms, background-color 250ms, border-color 250ms;
+}
+
+.job::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    300px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+    color-mix(in srgb, var(--color-primary) 10%, transparent),
+    transparent 70%
+  );
+  transition: opacity 250ms;
+}
+
+.timeline:hover .job:not(:hover) {
+  opacity: 0.5;
+}
+
+.job:hover {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+.job:hover::before {
+  opacity: 1;
+}
+
+.dates {
+  padding-top: 3px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+}
+
+.jobTitle {
+  font-size: 1.125rem;
+  font-weight: 800;
+}
+
+.jobTitle span {
+  color: var(--color-primary);
+}
+
+.jobText {
+  margin-top: 8px;
+  color: var(--color-muted);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.tags li {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.toolbox {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.toolGroup {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.toolList {
+  display: grid;
+  gap: 4px;
+  margin-top: 10px;
+  padding: 0;
+  list-style: none;
+  color: var(--color-muted);
+}
+
+.toolList li::before {
+  content: "▹ ";
+  color: var(--color-secondary);
+}
+
+@media (max-width: 900px) {
+  .page {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+
+  .side {
+    position: static;
+  }
+
+  .mascot {
+    width: 140px;
+  }
+}
+
+@media (max-width: 560px) {
+  .job {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    padding: 16px;
+    margin-inline: -16px;
+  }
+}
