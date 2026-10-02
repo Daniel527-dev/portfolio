@@ -1,12 +1,21 @@
 import Link from "next/link";
-import { site } from "@/site.config";
+import { getPostMetas } from "@/lib/content";
+import { categoryLabel, site } from "@/site.config";
 import MobileMenu from "./MobileMenu";
 import NavLinks from "./NavLinks";
+import Search from "./Search";
 import SoundToggle from "./SoundToggle";
 import ThemeToggle from "./ThemeToggle";
 import styles from "./Header.module.css";
 
 export default function Header() {
+  const searchItems = getPostMetas().map((p) => ({
+    title: p.title,
+    abstract: p.abstract,
+    href: `/blog/${p.slug}`,
+    category: categoryLabel(p.category),
+  }));
+
   return (
     <header className={styles.header}>
       <div className={`wrapper ${styles.inner}`}>
@@ -26,6 +35,7 @@ export default function Header() {
         <NavLinks links={site.nav} />
 
         <div className={styles.actions}>
+          <Search items={searchItems} />
           <SoundToggle />
           <ThemeToggle />
           <MobileMenu links={site.nav} />
