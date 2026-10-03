@@ -7,10 +7,11 @@
 
 .title {
   font-size: 0.8125rem;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--color-faint);
+  font-family: var(--font-body);
 }
 
 .list {
@@ -39,6 +40,6 @@
 
 .link[aria-current="location"] {
   color: var(--color-primary);
-  font-weight: 700;
+  font-weight: 600;
   transform: translateX(4px);
 }

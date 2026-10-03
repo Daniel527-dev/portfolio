@@ -15,7 +15,7 @@
 
 .formTitle {
   font-size: 1.125rem;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .row {
@@ -30,7 +30,7 @@
 }
 
 .field label {
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .hint {
@@ -90,7 +90,7 @@
   border-radius: var(--radius-md);
   background: var(--color-success-soft);
   color: var(--color-success);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .submit {
@@ -100,7 +100,7 @@
   border-radius: 999px;
   background: var(--color-primary);
   color: white;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 :global([data-theme="dark"]) .submit {
@@ -162,7 +162,7 @@
   border: 2px solid var(--color-border);
   border-radius: 999px;
   background: transparent;
-  font-weight: 700;
+  font-weight: 600;
   font-size: 0.875rem;
 }
 

@@ -20,13 +20,15 @@
 .name {
   margin-top: 24px;
   font-size: 2.5rem;
-  font-weight: 900;
+  font-weight: 500;
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
 }
 
 .role {
   margin-top: 4px;
   font-size: 1.25rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--color-primary);
 }
 
@@ -54,7 +56,7 @@
 }
 
 .socials a {
-  font-weight: 700;
+  font-weight: 600;
   color: var(--color-text);
   text-decoration: none;
 }
@@ -71,10 +73,11 @@
 
 .sectionTitle {
   font-size: 1rem;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--color-secondary);
+  font-family: var(--font-body);
 }
 
 .bio {
@@ -86,7 +89,7 @@
 }
 
 .bio a {
-  font-weight: 700;
+  font-weight: 600;
 }
 
 /* Hovering one job dims the others, so the focused one pops. */
@@ -141,7 +144,7 @@
 .dates {
   padding-top: 3px;
   font-size: 0.8125rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--color-faint);
@@ -149,7 +152,8 @@
 
 .jobTitle {
   font-size: 1.125rem;
-  font-weight: 800;
+  font-weight: 600;
+  font-family: var(--font-display);
 }
 
 .jobTitle span {
@@ -176,7 +180,7 @@
   background: var(--color-primary-soft);
   color: var(--color-primary);
   font-size: 0.8125rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .toolbox {
@@ -188,7 +192,8 @@
 
 .toolGroup {
   font-size: 1rem;
-  font-weight: 800;
+  font-weight: 600;
+  font-family: var(--font-body);
 }
 
 .toolList {

@@ -24,9 +24,10 @@
   gap: 10px;
   text-decoration: none;
   color: var(--color-text);
-  font-weight: 800;
+  font-weight: 600;
   font-size: 1.25rem;
   letter-spacing: -0.02em;
+  font-family: var(--font-display);
 }
 
 .logoMark {
@@ -188,7 +189,7 @@
 .mobileLink {
   padding: 12px 4px;
   font-size: 1.25rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--color-text);
   text-decoration: none;
   border-bottom: 1px solid var(--color-border);

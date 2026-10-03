@@ -24,14 +24,15 @@
 
 .number {
   font-size: clamp(2rem, 1.5rem + 1.6vw, 2.75rem);
-  font-weight: 900;
+  font-weight: 500;
   line-height: 1;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
   background: linear-gradient(100deg, var(--color-primary), var(--color-secondary));
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
+  font-family: var(--font-display);
 }
 
 .label {

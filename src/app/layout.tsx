@@ -9,10 +9,26 @@ import "./globals.css";
 
 // Fonts are self-hosted from npm (@fontsource-variable) rather than fetched from
 // Google Fonts, so dev and build never depend on reaching fonts.googleapis.com.
-const figtree = localFont({
-  src: "../../node_modules/@fontsource-variable/figtree/files/figtree-latin-wght-normal.woff2",
-  weight: "300 900",
-  variable: "--font-figtree",
+// Inter for body and interface text, Fraunces (an editorial serif) for headings.
+// Both "standard" files carry the optical-size axis, so letterforms adapt to size.
+const inter = localFont({
+  src: "../../node_modules/@fontsource-variable/inter/files/inter-latin-standard-normal.woff2",
+  weight: "100 900",
+  variable: "--font-inter",
+});
+const fraunces = localFont({
+  src: [
+    {
+      path: "../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-standard-normal.woff2",
+      style: "normal",
+    },
+    {
+      path: "../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-standard-italic.woff2",
+      style: "italic",
+    },
+  ],
+  weight: "100 900",
+  variable: "--font-fraunces",
 });
 const jetbrains = localFont({
   src: "../../node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2",
@@ -47,7 +63,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       data-theme="light"
-      className={`${figtree.variable} ${jetbrains.variable}`}
+      className={`${inter.variable} ${fraunces.variable} ${jetbrains.variable}`}
       suppressHydrationWarning
     >
       <head>

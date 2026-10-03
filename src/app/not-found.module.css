@@ -11,10 +11,11 @@
 
 .code {
   font-size: clamp(5rem, 3rem + 10vw, 9rem);
-  font-weight: 900;
+  font-weight: 500;
   line-height: 1;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.02em;
   color: var(--color-primary);
+  font-family: var(--font-display);
 }
 
 .spin {
@@ -32,5 +33,5 @@
   display: flex;
   gap: 16px;
   margin-top: 32px;
-  font-weight: 700;
+  font-weight: 600;
 }

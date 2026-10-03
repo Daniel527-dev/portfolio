@@ -28,6 +28,7 @@
 
 .emptyTitle {
   font-size: 1.25rem;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--color-text);
+  font-family: var(--font-display);
 }

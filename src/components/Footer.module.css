@@ -25,7 +25,8 @@
 
 .name {
   font-size: 1.375rem;
-  font-weight: 800;
+  font-weight: 600;
+  font-family: var(--font-display);
 }
 
 .blurb {
@@ -63,10 +64,11 @@
 
 .heading {
   font-size: 0.8125rem;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--color-faint);
+  font-family: var(--font-body);
 }
 
 .links {

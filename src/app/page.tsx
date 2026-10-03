@@ -5,7 +5,6 @@ import NewsletterForm from "@/components/NewsletterForm";
 import PostCard from "@/components/PostCard";
 import ProjectCard from "@/components/ProjectCard";
 import RotatingWord from "@/components/RotatingWord";
-import Sparkles from "@/components/Sparkles";
 import { ArrowRightIcon } from "@/components/icons";
 import { getPostMetas } from "@/lib/content";
 import { getAllViews, getDb, listProjects } from "@/lib/db";
@@ -36,9 +35,9 @@ export default function Home() {
             </p>
             <h1 className={styles.heroTitle}>
               I design{" "}
-              <Sparkles>
+              <strong>
                 <RotatingWord words={["software", "dashboards", "interfaces", "products"]} />
-              </Sparkles>
+              </strong>
               <br />
               people enjoy using.
             </h1>
