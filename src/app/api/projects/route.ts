@@ -8,7 +8,11 @@ import { validateProject } from "@/lib/validation";
 
 // Public list of the project history.
 export async function GET() {
-  const projects = listProjects(getDb()).map((p) => ({ ...p, imageUrl: projectImageUrl(p.image) }));
+  const projects = listProjects(getDb()).map((p) => ({
+    ...p,
+    imageUrl: projectImageUrl(p.image),
+    samples: p.samples.map((s) => ({ ...s, imageUrl: projectImageUrl(s.image) })),
+  }));
   return Response.json({ projects });
 }
 

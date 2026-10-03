@@ -1,13 +1,24 @@
 import type { Project } from "@/lib/db";
 import { projectImageUrl } from "@/lib/projects";
-import ImageZoom from "./ImageZoom";
+import ProjectGallery from "./ProjectGallery";
 import styles from "./ProjectCard.module.css";
 
-// One entry of the work history: the image, title, year, a short description and tags.
+// One entry of the work history: the cover and sample images, title, year, a short
+// description and tags.
 export default function ProjectCard({ project }: { project: Project }) {
   return (
     <article className={styles.card} data-spotlight data-reveal>
-      <ImageZoom src={projectImageUrl(project.image)} alt={`Cover image for ${project.title}`} caption={project.title} />
+      <ProjectGallery
+        title={project.title}
+        images={[
+          { src: projectImageUrl(project.image), alt: `Cover image for ${project.title}`, caption: "" },
+          ...project.samples.map((s) => ({
+            src: projectImageUrl(s.image),
+            alt: s.caption || `Sample image for ${project.title}`,
+            caption: s.caption,
+          })),
+        ]}
+      />
       <div className={styles.body}>
         <div className={styles.titleRow}>
           <h3 className={styles.title}>{project.title}</h3>

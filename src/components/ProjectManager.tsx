@@ -2,13 +2,16 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import type { Project } from "@/lib/db";
+import type { Project, ProjectImage } from "@/lib/db";
+import SampleManager from "./SampleManager";
 import styles from "./ProjectManager.module.css";
 
 type Errors = Partial<Record<"title" | "summary" | "year" | "tags" | "image" | "form", string>>;
 
 // Owner-only UI for the project history: upload new work, feature or delete existing work.
-export default function ProjectManager({ projects }: { projects: (Project & { imageUrl: string })[] }) {
+type ManagedProject = Project & { imageUrl: string; samples: (ProjectImage & { imageUrl: string })[] };
+
+export default function ProjectManager({ projects }: { projects: ManagedProject[] }) {
   const router = useRouter();
   const [errors, setErrors] = useState<Errors>({});
   const [saving, setSaving] = useState(false);
@@ -172,11 +175,12 @@ export default function ProjectManager({ projects }: { projects: (Project & { im
                 </button>
                 <button
                   className={`${styles.ghost} ${styles.danger}`}
-                  onClick={() => mutate(p.id, { method: "DELETE" }, `Delete “${p.title}”? This also removes its image.`)}
+                  onClick={() => mutate(p.id, { method: "DELETE" }, `Delete “${p.title}”? This also removes its images.`)}
                 >
                   Delete
                 </button>
               </div>
+              <SampleManager projectId={p.id} samples={p.samples} />
             </li>
           ))}
         </ul>

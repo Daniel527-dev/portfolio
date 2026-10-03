@@ -1,0 +1,103 @@
+.panel {
+  grid-column: 1 / -1;
+  padding-top: 8px;
+  border-top: 1px dashed var(--color-border);
+}
+
+.summary {
+  cursor: pointer;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.summary:hover {
+  color: var(--color-primary);
+}
+
+.samples {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.sample {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  align-items: center;
+  gap: 12px;
+}
+
+.thumb {
+  width: 80px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-2);
+}
+
+.captionForm,
+.addForm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.addForm {
+  margin-top: 12px;
+}
+
+.captionForm input,
+.addForm input:not([type="file"]) {
+  flex: 1 1 220px;
+  padding: 6px 12px;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  font-size: 0.9375rem;
+}
+
+.captionForm input:focus,
+.addForm input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.addForm input[type="file"] {
+  flex: 1 1 220px;
+  font-size: 0.875rem;
+}
+
+.ghost {
+  padding: 6px 14px;
+  border: 2px solid var(--color-border);
+  border-radius: 999px;
+  background: transparent;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.ghost:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.ghost:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+.danger:hover {
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
+
+.error {
+  margin-top: 8px;
+  color: var(--color-error);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}

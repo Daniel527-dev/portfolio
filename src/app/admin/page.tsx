@@ -46,7 +46,11 @@ export default async function AdminPage() {
   const posts = getPostMetas();
   const subscribers = listSubscribers(db);
   const messages = listMessages(db);
-  const projects = listProjects(db).map((p) => ({ ...p, imageUrl: projectImageUrl(p.image) }));
+  const projects = listProjects(db).map((p) => ({
+    ...p,
+    imageUrl: projectImageUrl(p.image),
+    samples: p.samples.map((s) => ({ ...s, imageUrl: projectImageUrl(s.image) })),
+  }));
   const totalViews = [...views.values()].reduce((a, b) => a + b, 0);
   const totalLikes = [...likes.values()].reduce((a, b) => a + b, 0);
 

@@ -44,6 +44,14 @@ const SCHEMA = `
     featured   INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
+  CREATE TABLE IF NOT EXISTS project_images (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    project_id INTEGER NOT NULL,
+    image      TEXT NOT NULL,
+    caption    TEXT NOT NULL DEFAULT '',
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS project_images_by_project ON project_images (project_id, id);
   CREATE TABLE IF NOT EXISTS meta (
     key   TEXT PRIMARY KEY,
     value TEXT NOT NULL
@@ -87,6 +95,7 @@ export function getDb() {
     const file = process.env.DATABASE_PATH ?? path.join(dataDir(), "portfolio.db");
     globalForDb.__portfolioDb = openDatabase(file);
     seedProjectsOnce(globalForDb.__portfolioDb, seedProjects);
+    seedProjectSamplesOnce(globalForDb.__portfolioDb, seedProjects);
   }
   return globalForDb.__portfolioDb;
 }
@@ -188,16 +197,26 @@ export function deleteMessage(db: DatabaseSync, id: number) {
 
 /* ---------- projects (work history) ---------- */
 
+/** An extra image shown in a project's gallery, after the cover. */
+export type ProjectImage = {
+  id: number;
+  projectId: number;
+  /** File name: an upload in the uploads directory, or a "seed-" file in public/projects. */
+  image: string;
+  caption: string;
+};
+
 export type Project = {
   id: number;
   title: string;
   summary: string;
   year: number;
   tags: string[];
-  /** File name of the image in the uploads directory. */
+  /** File name of the cover image (same naming as ProjectImage.image). */
   image: string;
   featured: boolean;
   createdAt: string;
+  samples: ProjectImage[];
 };
 
 type ProjectRow = {
@@ -211,8 +230,27 @@ type ProjectRow = {
   created_at: string;
 };
 
-function toProject(row: ProjectRow): Project {
-  return {
+type ProjectImageRow = { id: number; project_id: number; image: string; caption: string };
+
+function toProjectImage(row: ProjectImageRow): ProjectImage {
+  return { id: row.id, projectId: row.project_id, image: row.image, caption: row.caption };
+}
+
+/** Attaches each project's samples (in upload order) with one query. */
+function withSamples(db: DatabaseSync, rows: ProjectRow[]): Project[] {
+  const byProject = new Map<number, ProjectImage[]>();
+  if (rows.length > 0) {
+    const ids = rows.map((r) => r.id);
+    const samples = db
+      .prepare(`SELECT * FROM project_images WHERE project_id IN (${ids.map(() => "?").join(",")}) ORDER BY id`)
+      .all(...ids) as ProjectImageRow[];
+    for (const sample of samples) {
+      const list = byProject.get(sample.project_id) ?? [];
+      list.push(toProjectImage(sample));
+      byProject.set(sample.project_id, list);
+    }
+  }
+  return rows.map((row) => ({
     id: row.id,
     title: row.title,
     summary: row.summary,
@@ -221,7 +259,8 @@ function toProject(row: ProjectRow): Project {
     image: row.image,
     featured: row.featured === 1,
     createdAt: row.created_at,
-  };
+    samples: byProject.get(row.id) ?? [],
+  }));
 }
 
 export function addProject(
@@ -242,40 +281,109 @@ export function listProjects(db: DatabaseSync, { featuredOnly = false } = {}) {
   const rows = db
     .prepare(`SELECT * FROM projects ${where} ORDER BY year DESC, id DESC`)
     .all() as ProjectRow[];
-  return rows.map(toProject);
+  return withSamples(db, rows);
 }
 
 export function getProject(db: DatabaseSync, id: number) {
   const row = db.prepare("SELECT * FROM projects WHERE id = ?").get(id) as ProjectRow | undefined;
-  return row ? toProject(row) : undefined;
+  return row ? withSamples(db, [row])[0] : undefined;
 }
 
 export function setProjectFeatured(db: DatabaseSync, id: number, featured: boolean) {
   db.prepare("UPDATE projects SET featured = ? WHERE id = ?").run(featured ? 1 : 0, id);
 }
 
-/**
- * Inserts the starting work history the first time a database is opened. A flag in
- * `meta` records that it ran, so projects the owner deletes later don't come back.
- */
-export function seedProjectsOnce(db: DatabaseSync, projects: Parameters<typeof addProject>[1][]) {
-  const done = db.prepare("SELECT 1 FROM meta WHERE key = 'projects_seeded'").get();
-  if (done) return false;
+/** Deletes the project and its samples; returns them so the caller can remove the files too. */
+export function deleteProject(db: DatabaseSync, id: number) {
+  const project = getProject(db, id);
+  if (project) {
+    db.prepare("DELETE FROM project_images WHERE project_id = ?").run(id);
+    db.prepare("DELETE FROM projects WHERE id = ?").run(id);
+  }
+  return project;
+}
+
+/* ---------- project sample images ---------- */
+
+export function addProjectImage(db: DatabaseSync, s: { projectId: number; image: string; caption: string }) {
+  const result = db
+    .prepare("INSERT INTO project_images (project_id, image, caption) VALUES (?, ?, ?)")
+    .run(s.projectId, s.image, s.caption);
+  return Number(result.lastInsertRowid);
+}
+
+export function getProjectImage(db: DatabaseSync, id: number) {
+  const row = db.prepare("SELECT * FROM project_images WHERE id = ?").get(id) as ProjectImageRow | undefined;
+  return row ? toProjectImage(row) : undefined;
+}
+
+export function setProjectImageCaption(db: DatabaseSync, id: number, caption: string) {
+  db.prepare("UPDATE project_images SET caption = ? WHERE id = ?").run(caption, id);
+}
+
+/** Deletes the row and returns it, so the caller can remove the image file too. */
+export function deleteProjectImage(db: DatabaseSync, id: number) {
+  const sample = getProjectImage(db, id);
+  if (sample) db.prepare("DELETE FROM project_images WHERE id = ?").run(id);
+  return sample;
+}
+
+/* ---------- starting content ---------- */
+
+type SeedProject = Parameters<typeof addProject>[1] & { samples?: { image: string; caption: string }[] };
+
+function flagged(db: DatabaseSync, key: string) {
+  return Boolean(db.prepare("SELECT 1 FROM meta WHERE key = ?").get(key));
+}
+
+function inTransaction(db: DatabaseSync, work: () => void) {
   db.exec("BEGIN");
   try {
-    for (const p of projects) addProject(db, p);
-    db.prepare("INSERT INTO meta (key, value) VALUES ('projects_seeded', datetime('now'))").run();
+    work();
     db.exec("COMMIT");
   } catch (error) {
     db.exec("ROLLBACK");
     throw error;
   }
+}
+
+function setFlag(db: DatabaseSync, key: string) {
+  db.prepare("INSERT OR REPLACE INTO meta (key, value) VALUES (?, datetime('now'))").run(key);
+}
+
+/**
+ * Inserts the starting work history (with its samples) the first time a database is
+ * opened. A flag in `meta` records that it ran, so projects the owner deletes later
+ * don't come back.
+ */
+export function seedProjectsOnce(db: DatabaseSync, projects: SeedProject[]) {
+  if (flagged(db, "projects_seeded")) return false;
+  inTransaction(db, () => {
+    for (const { samples = [], ...p } of projects) {
+      const projectId = addProject(db, p);
+      for (const s of samples) addProjectImage(db, { projectId, ...s });
+    }
+    setFlag(db, "projects_seeded");
+    setFlag(db, "project_samples_seeded");
+  });
   return true;
 }
 
-/** Deletes the row and returns it, so the caller can remove the image file too. */
-export function deleteProject(db: DatabaseSync, id: number) {
-  const project = getProject(db, id);
-  if (project) db.prepare("DELETE FROM projects WHERE id = ?").run(id);
-  return project;
+/**
+ * For databases seeded before galleries existed: adds the starting samples to the
+ * seed projects that are still there (matched by cover image), once.
+ */
+export function seedProjectSamplesOnce(db: DatabaseSync, projects: SeedProject[]) {
+  if (flagged(db, "project_samples_seeded")) return false;
+  inTransaction(db, () => {
+    for (const { image, samples = [] } of projects) {
+      const row = db.prepare("SELECT id FROM projects WHERE image = ?").get(image) as { id: number } | undefined;
+      if (!row) continue;
+      const existing = db.prepare("SELECT 1 FROM project_images WHERE project_id = ?").get(row.id);
+      if (existing) continue;
+      for (const s of samples) addProjectImage(db, { projectId: row.id, ...s });
+    }
+    setFlag(db, "project_samples_seeded");
+  });
+  return true;
 }

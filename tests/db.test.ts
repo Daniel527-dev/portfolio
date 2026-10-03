@@ -4,10 +4,13 @@ import {
   addLikes,
   addMessage,
   addProject,
+  addProjectImage,
   addSubscriber,
   deleteMessage,
   deleteProject,
+  deleteProjectImage,
   getAllLikes,
+  getProjectImage,
   getLikes,
   getViews,
   incrementViews,
@@ -16,8 +19,10 @@ import {
   listSubscribers,
   MAX_LIKES_PER_VISITOR,
   openDatabase,
+  seedProjectSamplesOnce,
   seedProjectsOnce,
   setProjectFeatured,
+  setProjectImageCaption,
 } from "../src/lib/db.ts";
 
 let db: ReturnType<typeof openDatabase>;
@@ -122,5 +127,51 @@ describe("projects", () => {
     for (const p of listProjects(db)) deleteProject(db, p.id);
     assert.equal(seedProjectsOnce(db, seed), false);
     assert.equal(listProjects(db).length, 0);
+  });
+});
+
+describe("project samples", () => {
+  const base = { summary: "A short description.", tags: [], featured: false, year: 2024 };
+
+  test("attach in upload order, recaption and delete with their project", () => {
+    const id = addProject(db, { ...base, title: "With samples", image: "cover.png" });
+    const first = addProjectImage(db, { projectId: id, image: "s1.png", caption: "First" });
+    addProjectImage(db, { projectId: id, image: "s2.png", caption: "" });
+    assert.deepEqual(listProjects(db)[0].samples.map((s) => s.image), ["s1.png", "s2.png"]);
+
+    setProjectImageCaption(db, first, "Renamed");
+    assert.equal(getProjectImage(db, first)?.caption, "Renamed");
+    assert.equal(deleteProjectImage(db, first)?.image, "s1.png");
+    assert.equal(getProjectImage(db, first), undefined);
+
+    const removed = deleteProject(db, id);
+    assert.deepEqual(removed?.samples.map((s) => s.image), ["s2.png"]);
+    assert.equal(db.prepare("SELECT COUNT(*) AS n FROM project_images").get()?.n, 0);
+  });
+
+  test("seed with projects on a fresh database, and only once", () => {
+    const seed = [{ ...base, title: "Seeded", image: "seed-a.png", samples: [{ image: "seed-a-1.png", caption: "c" }] }];
+    assert.equal(seedProjectsOnce(db, seed), true);
+    assert.equal(seedProjectSamplesOnce(db, seed), false);
+    assert.equal(listProjects(db)[0].samples.length, 1);
+  });
+
+  test("backfill databases seeded before galleries existed", () => {
+    addProject(db, { ...base, title: "Old seed", image: "seed-a.png" });
+    const kept = addProject(db, { ...base, title: "Has own samples", image: "seed-b.png" });
+    addProjectImage(db, { projectId: kept, image: "mine.png", caption: "" });
+    db.prepare("INSERT INTO meta (key, value) VALUES ('projects_seeded', 'earlier')").run();
+    const seed = [
+      { ...base, title: "Old seed", image: "seed-a.png", samples: [{ image: "seed-a-1.png", caption: "c" }] },
+      { ...base, title: "Has own samples", image: "seed-b.png", samples: [{ image: "seed-b-1.png", caption: "c" }] },
+      { ...base, title: "Deleted by owner", image: "seed-c.png", samples: [{ image: "seed-c-1.png", caption: "c" }] },
+    ];
+    assert.equal(seedProjectsOnce(db, seed), false);
+    assert.equal(seedProjectSamplesOnce(db, seed), true);
+    const byTitle = new Map(listProjects(db).map((p) => [p.title, p.samples.map((s) => s.image)]));
+    assert.deepEqual(byTitle.get("Old seed"), ["seed-a-1.png"]);
+    assert.deepEqual(byTitle.get("Has own samples"), ["mine.png"]);
+    assert.equal(byTitle.size, 2);
+    assert.equal(seedProjectSamplesOnce(db, seed), false);
   });
 });

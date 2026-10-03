@@ -73,3 +73,13 @@ export function validateProject(input: Record<string, unknown>, now = new Date()
   const featured = input.featured === true || input.featured === "on" || input.featured === "true";
   return { ok: true, data: { title, summary, year, tags, featured } };
 }
+
+export const MAX_CAPTION_LENGTH = 160;
+
+/** Captions for gallery images are optional but short. */
+export function validateCaption(value: unknown): Result<string> {
+  const caption = str(value).replace(/\s+/g, " ");
+  if (caption.length > MAX_CAPTION_LENGTH)
+    return { ok: false, errors: { caption: `Keep the caption under ${MAX_CAPTION_LENGTH} characters.` } };
+  return { ok: true, data: caption };
+}

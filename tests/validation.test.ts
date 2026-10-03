@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { validateContact, validateEmail, validateProject } from "../src/lib/validation.ts";
+import { validateCaption, validateContact, validateEmail, validateProject } from "../src/lib/validation.ts";
 
 describe("validateEmail", () => {
   test("normalises valid addresses", () => {
@@ -49,5 +49,17 @@ describe("validateProject", () => {
     const result = validateProject({ title: "", summary: "short", year: "2099", tags: "a,b,c,d,e,f,g,h,i" }, now);
     assert.equal(result.ok, false);
     if (!result.ok) assert.deepEqual(Object.keys(result.errors).sort(), ["summary", "tags", "title", "year"]);
+  });
+});
+
+describe("validateCaption", () => {
+  test("trims and collapses whitespace; empty is allowed", () => {
+    assert.deepEqual(validateCaption("  Token   sheet\n for brands "), { ok: true, data: "Token sheet for brands" });
+    assert.deepEqual(validateCaption(undefined), { ok: true, data: "" });
+  });
+
+  test("rejects captions over 160 characters", () => {
+    const result = validateCaption("x".repeat(161));
+    assert.equal(result.ok, false);
   });
 });

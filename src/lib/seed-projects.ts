@@ -1,6 +1,7 @@
-// The work history the site starts with, taken from the resume. Each entry's
-// cover is a title card in public/projects/ (seed covers are served as static
-// files, uploads go through /api/projects/images). Edit or delete them at /admin.
+// The work history the site starts with, taken from the resume. Each entry's cover
+// is a title card and its samples are labeled concept illustrations, all in
+// public/projects/ (seed images are served as static files, uploads go through
+// /api/projects/images). Edit, replace or delete them at /admin.
 
 export const SEED_IMAGE_PREFIX = "seed-";
 
@@ -12,6 +13,10 @@ export const seedProjects = [
     year: 2025,
     tags: ["Design Systems", "Figma", "Design Tokens", "Tailwind CSS", "React"],
     image: "seed-multi-brand-design-system.png",
+    samples: [
+      { image: "seed-sample-multi-brand-design-system-1.png", caption: "Token sheet: one semantic layer, three brand modes. Concept illustration, not the original client deliverable." },
+      { image: "seed-sample-multi-brand-design-system-2.png", caption: "The same components themed for three brands. Concept illustration, not the original client deliverable." },
+    ],
     featured: true,
   },
   {
@@ -21,6 +26,10 @@ export const seedProjects = [
     year: 2024,
     tags: ["Brand Identity", "Web Design", "A/B Testing", "Workshops"],
     image: "seed-enterprise-brand-web-redesigns.png",
+    samples: [
+      { image: "seed-sample-enterprise-brand-web-redesigns-1.png", caption: "Responsive landing page, desktop and mobile. Concept illustration, not the original client deliverable." },
+      { image: "seed-sample-enterprise-brand-web-redesigns-2.png", caption: "Stakeholder workshop: brand strategy board. Concept illustration, not the original client deliverable." },
+    ],
     featured: true,
   },
   {
@@ -30,6 +39,10 @@ export const seedProjects = [
     year: 2023,
     tags: ["React", "TypeScript", "Next.js", "Accessibility", "Core Web Vitals"],
     image: "seed-production-ui-react-nextjs.png",
+    samples: [
+      { image: "seed-sample-production-ui-react-nextjs-1.png", caption: "A React component in code and in the browser. Concept illustration, not the original client deliverable." },
+      { image: "seed-sample-production-ui-react-nextjs-2.png", caption: "Accessible form states specified before build. Concept illustration, not the original client deliverable." },
+    ],
     featured: false,
   },
   {
@@ -39,6 +52,10 @@ export const seedProjects = [
     year: 2020,
     tags: ["UI Design", "Dashboards", "Data Visualization", "React"],
     image: "seed-parametric-search-dashboards.png",
+    samples: [
+      { image: "seed-sample-parametric-search-dashboards-1.png", caption: "Parametric search with filters and a results table. Concept illustration, not the original client deliverable." },
+      { image: "seed-sample-parametric-search-dashboards-2.png", caption: "Supply dashboard with a part inspection panel. Concept illustration, not the original client deliverable." },
+    ],
     featured: true,
   },
   {
@@ -48,6 +65,10 @@ export const seedProjects = [
     year: 2020,
     tags: ["Design Tokens", "Figma", "Git", "Automation"],
     image: "seed-figma-to-git-token-pipeline.png",
+    samples: [
+      { image: "seed-sample-figma-to-git-token-pipeline-1.png", caption: "Pipeline from Figma variables to shipped code. Concept illustration, not the original client deliverable." },
+      { image: "seed-sample-figma-to-git-token-pipeline-2.png", caption: "tokens.json in, CSS and Tailwind out. Concept illustration, not the original client deliverable." },
+    ],
     featured: false,
   },
   {
@@ -57,6 +78,10 @@ export const seedProjects = [
     year: 2019,
     tags: ["Brand Systems", "Typography", "UI Kits", "Landing Pages"],
     image: "seed-brand-systems-digital-products.png",
+    samples: [
+      { image: "seed-sample-brand-systems-digital-products-1.png", caption: "Brand style sheet: mark, type, color, icons and voice. Concept illustration, not the original client deliverable." },
+      { image: "seed-sample-brand-systems-digital-products-2.png", caption: "The brand applied to app, business card and social. Concept illustration, not the original client deliverable." },
+    ],
     featured: false,
   },
   {
@@ -66,6 +91,10 @@ export const seedProjects = [
     year: 2017,
     tags: ["Interactive", "WebGL", "Motion", "Storyboards"],
     image: "seed-interactive-campaigns.png",
+    samples: [
+      { image: "seed-sample-interactive-campaigns-1.png", caption: "Storyboard from campaign story to interaction. Concept illustration, not the original client deliverable." },
+      { image: "seed-sample-interactive-campaigns-2.png", caption: "Motion spec: timing, easing and triggers per layer. Concept illustration, not the original client deliverable." },
+    ],
     featured: false,
   },
 ];
