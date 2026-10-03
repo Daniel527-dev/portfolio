@@ -4,7 +4,8 @@ import os from "node:os";
 import path from "node:path";
 
 // One SQLite file holds every piece of dynamic state: likes, views,
-// newsletter subscribers and contact messages. node:sqlite ships with
+// newsletter subscribers, contact messages and the project history
+// (images themselves are files, see storage.ts). node:sqlite ships with
 // Node 22.5+, so there is no native module to compile.
 
 export const MAX_LIKES_PER_VISITOR = 10;
@@ -32,6 +33,16 @@ const SCHEMA = `
     body       TEXT NOT NULL,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
+  CREATE TABLE IF NOT EXISTS projects (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    title      TEXT NOT NULL,
+    summary    TEXT NOT NULL,
+    year       INTEGER NOT NULL,
+    tags       TEXT NOT NULL DEFAULT '[]',
+    image      TEXT NOT NULL,
+    featured   INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
 `;
 
 export function openDatabase(file: string) {
@@ -43,21 +54,24 @@ export function openDatabase(file: string) {
   return db;
 }
 
-// Serverless hosts (Netlify, Vercel, AWS Lambda) mount the app read-only and
-// only allow writes to the temp dir, so fall back there when ./data isn't writable.
-// Data in the temp dir does not survive cold starts or redeploys.
-function databaseFile() {
-  if (process.env.DATABASE_PATH) return process.env.DATABASE_PATH;
+// Where the database and uploaded images live. Serverless hosts (Netlify, Vercel,
+// AWS Lambda) mount the app read-only and only allow writes to the temp dir, so
+// fall back there when ./data isn't writable. The temp dir does not survive cold
+// starts or redeploys.
+let resolvedDataDir: string | undefined;
+export function dataDir() {
+  if (resolvedDataDir) return resolvedDataDir;
   const dir = path.join(process.cwd(), "data");
   try {
     fs.mkdirSync(dir, { recursive: true });
     fs.accessSync(dir, fs.constants.W_OK);
-    return path.join(dir, "portfolio.db");
+    resolvedDataDir = dir;
   } catch {
-    const file = path.join(os.tmpdir(), "portfolio.db");
-    console.warn(`[db] ${dir} is not writable; using ${file} (not persistent).`);
-    return file;
+    resolvedDataDir = path.join(os.tmpdir(), "portfolio-data");
+    fs.mkdirSync(resolvedDataDir, { recursive: true });
+    console.warn(`[db] ${dir} is not writable; using ${resolvedDataDir} (not persistent).`);
   }
+  return resolvedDataDir;
 }
 
 // Reuse one connection across hot reloads in development.
@@ -65,7 +79,8 @@ const globalForDb = globalThis as unknown as { __portfolioDb?: DatabaseSync };
 
 export function getDb() {
   if (!globalForDb.__portfolioDb) {
-    globalForDb.__portfolioDb = openDatabase(databaseFile());
+    const file = process.env.DATABASE_PATH ?? path.join(dataDir(), "portfolio.db");
+    globalForDb.__portfolioDb = openDatabase(file);
   }
   return globalForDb.__portfolioDb;
 }
@@ -163,4 +178,79 @@ export function listMessages(db: DatabaseSync) {
 
 export function deleteMessage(db: DatabaseSync, id: number) {
   db.prepare("DELETE FROM messages WHERE id = ?").run(id);
+}
+
+/* ---------- projects (work history) ---------- */
+
+export type Project = {
+  id: number;
+  title: string;
+  summary: string;
+  year: number;
+  tags: string[];
+  /** File name of the image in the uploads directory. */
+  image: string;
+  featured: boolean;
+  createdAt: string;
+};
+
+type ProjectRow = {
+  id: number;
+  title: string;
+  summary: string;
+  year: number;
+  tags: string;
+  image: string;
+  featured: number;
+  created_at: string;
+};
+
+function toProject(row: ProjectRow): Project {
+  return {
+    id: row.id,
+    title: row.title,
+    summary: row.summary,
+    year: row.year,
+    tags: JSON.parse(row.tags) as string[],
+    image: row.image,
+    featured: row.featured === 1,
+    createdAt: row.created_at,
+  };
+}
+
+export function addProject(
+  db: DatabaseSync,
+  p: { title: string; summary: string; year: number; tags: string[]; image: string; featured: boolean },
+) {
+  const result = db
+    .prepare(
+      "INSERT INTO projects (title, summary, year, tags, image, featured) VALUES (?, ?, ?, ?, ?, ?)",
+    )
+    .run(p.title, p.summary, p.year, JSON.stringify(p.tags), p.image, p.featured ? 1 : 0);
+  return Number(result.lastInsertRowid);
+}
+
+/** Newest work first; ties broken by upload order. */
+export function listProjects(db: DatabaseSync, { featuredOnly = false } = {}) {
+  const where = featuredOnly ? "WHERE featured = 1" : "";
+  const rows = db
+    .prepare(`SELECT * FROM projects ${where} ORDER BY year DESC, id DESC`)
+    .all() as ProjectRow[];
+  return rows.map(toProject);
+}
+
+export function getProject(db: DatabaseSync, id: number) {
+  const row = db.prepare("SELECT * FROM projects WHERE id = ?").get(id) as ProjectRow | undefined;
+  return row ? toProject(row) : undefined;
+}
+
+export function setProjectFeatured(db: DatabaseSync, id: number, featured: boolean) {
+  db.prepare("UPDATE projects SET featured = ? WHERE id = ?").run(featured ? 1 : 0, id);
+}
+
+/** Deletes the row and returns it, so the caller can remove the image file too. */
+export function deleteProject(db: DatabaseSync, id: number) {
+  const project = getProject(db, id);
+  if (project) db.prepare("DELETE FROM projects WHERE id = ?").run(id);
+  return project;
 }

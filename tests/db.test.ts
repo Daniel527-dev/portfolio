@@ -3,16 +3,20 @@ import { beforeEach, describe, test } from "node:test";
 import {
   addLikes,
   addMessage,
+  addProject,
   addSubscriber,
   deleteMessage,
+  deleteProject,
   getAllLikes,
   getLikes,
   getViews,
   incrementViews,
   listMessages,
+  listProjects,
   listSubscribers,
   MAX_LIKES_PER_VISITOR,
   openDatabase,
+  setProjectFeatured,
 } from "../src/lib/db.ts";
 
 let db: ReturnType<typeof openDatabase>;
@@ -73,5 +77,34 @@ describe("messages", () => {
     );
     deleteMessage(db, first);
     assert.equal(listMessages(db).length, 1);
+  });
+});
+
+describe("projects", () => {
+  const base = { summary: "A short description.", tags: ["Figma", "React"], featured: false };
+
+  test("list newest year first, then newest upload", () => {
+    addProject(db, { ...base, title: "Old", year: 2023, image: "a.png" });
+    addProject(db, { ...base, title: "New A", year: 2026, image: "b.png" });
+    addProject(db, { ...base, title: "New B", year: 2026, image: "c.png" });
+    assert.deepEqual(
+      listProjects(db).map((p) => p.title),
+      ["New B", "New A", "Old"],
+    );
+    assert.deepEqual(listProjects(db)[0].tags, ["Figma", "React"]);
+  });
+
+  test("feature, filter and delete", () => {
+    const id = addProject(db, { ...base, title: "Hero", year: 2025, image: "h.png" });
+    addProject(db, { ...base, title: "Other", year: 2025, image: "o.png" });
+    assert.equal(listProjects(db, { featuredOnly: true }).length, 0);
+    setProjectFeatured(db, id, true);
+    assert.deepEqual(
+      listProjects(db, { featuredOnly: true }).map((p) => p.title),
+      ["Hero"],
+    );
+    assert.equal(deleteProject(db, id)?.image, "h.png");
+    assert.equal(deleteProject(db, id), undefined);
+    assert.equal(listProjects(db).length, 1);
   });
 });

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { validateContact, validateEmail } from "../src/lib/validation.ts";
+import { validateContact, validateEmail, validateProject } from "../src/lib/validation.ts";
 
 describe("validateEmail", () => {
   test("normalises valid addresses", () => {
@@ -28,5 +28,26 @@ describe("validateContact", () => {
     const result = validateContact({ name: "", email: "bad", message: "short" });
     assert.equal(result.ok, false);
     if (!result.ok) assert.deepEqual(Object.keys(result.errors).sort(), ["email", "message", "name"]);
+  });
+});
+
+describe("validateProject", () => {
+  const now = new Date("2026-10-03");
+
+  test("cleans up a valid project", () => {
+    const result = validateProject(
+      { title: "  Brand refresh ", summary: "New logo and website.", year: "2025", tags: "Figma, , Branding ", featured: "on" },
+      now,
+    );
+    assert.deepEqual(result, {
+      ok: true,
+      data: { title: "Brand refresh", summary: "New logo and website.", year: 2025, tags: ["Figma", "Branding"], featured: true },
+    });
+  });
+
+  test("reports each invalid field", () => {
+    const result = validateProject({ title: "", summary: "short", year: "2099", tags: "a,b,c,d,e,f,g,h,i" }, now);
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.deepEqual(Object.keys(result.errors).sort(), ["summary", "tags", "title", "year"]);
   });
 });
