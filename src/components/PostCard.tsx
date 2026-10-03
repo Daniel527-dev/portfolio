@@ -7,7 +7,7 @@ import styles from "./PostCard.module.css";
 
 export default function PostCard({ post }: { post: PostMeta }) {
   return (
-    <article className={styles.card}>
+    <article className={styles.card} data-reveal>
       <div className={styles.meta}>
         <Link href={`/categories/${post.category}`} className={styles.category}>
           {categoryLabel(post.category)}

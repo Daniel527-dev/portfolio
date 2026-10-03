@@ -17,19 +17,22 @@ export default function Header() {
     category: categoryLabel(p.category),
   }));
 
+  // The wordmark uses the first and last name, so longer names stay compact.
+  const words = site.name.split(" ");
+  const first = words[0];
+  const last = words.length > 1 ? words[words.length - 1] : "";
+
   return (
     <header className={styles.header}>
       <div className={`wrapper ${styles.inner}`}>
         <Link href="/" className={styles.logo} aria-label={`${site.name}, home`}>
           <span className={styles.logoMark} aria-hidden="true">
-            {site.name
-              .split(" ")
-              .map((w) => w[0])
-              .join("")}
+            {first[0]}
+            {last[0]}
           </span>
           <span className={styles.logoText}>
-            {site.name.split(" ")[0]}
-            <span className={styles.logoAccent}>{site.name.split(" ").slice(1).join("")}</span>
+            {first}
+            <span className={styles.logoAccent}>{last}</span>
           </span>
         </Link>
 

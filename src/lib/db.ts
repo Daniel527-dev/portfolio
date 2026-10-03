@@ -2,6 +2,7 @@ import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { seedProjects } from "./seed-projects.ts";
 
 // One SQLite file holds every piece of dynamic state: likes, views,
 // newsletter subscribers, contact messages and the project history
@@ -43,6 +44,10 @@ const SCHEMA = `
     featured   INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
+  CREATE TABLE IF NOT EXISTS meta (
+    key   TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+  );
 `;
 
 export function openDatabase(file: string) {
@@ -81,6 +86,7 @@ export function getDb() {
   if (!globalForDb.__portfolioDb) {
     const file = process.env.DATABASE_PATH ?? path.join(dataDir(), "portfolio.db");
     globalForDb.__portfolioDb = openDatabase(file);
+    seedProjectsOnce(globalForDb.__portfolioDb, seedProjects);
   }
   return globalForDb.__portfolioDb;
 }
@@ -246,6 +252,25 @@ export function getProject(db: DatabaseSync, id: number) {
 
 export function setProjectFeatured(db: DatabaseSync, id: number, featured: boolean) {
   db.prepare("UPDATE projects SET featured = ? WHERE id = ?").run(featured ? 1 : 0, id);
+}
+
+/**
+ * Inserts the starting work history the first time a database is opened. A flag in
+ * `meta` records that it ran, so projects the owner deletes later don't come back.
+ */
+export function seedProjectsOnce(db: DatabaseSync, projects: Parameters<typeof addProject>[1][]) {
+  const done = db.prepare("SELECT 1 FROM meta WHERE key = 'projects_seeded'").get();
+  if (done) return false;
+  db.exec("BEGIN");
+  try {
+    for (const p of projects) addProject(db, p);
+    db.prepare("INSERT INTO meta (key, value) VALUES ('projects_seeded', datetime('now'))").run();
+    db.exec("COMMIT");
+  } catch (error) {
+    db.exec("ROLLBACK");
+    throw error;
+  }
+  return true;
 }
 
 /** Deletes the row and returns it, so the caller can remove the image file too. */

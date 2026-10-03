@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import ScrollReveal from "@/components/ScrollReveal";
 import Spotlight from "@/components/Spotlight";
 import { site } from "@/site.config";
 import "./globals.css";
@@ -37,6 +38,10 @@ export const viewport: Viewport = {
 // Runs before first paint: saved choice wins, otherwise follow the OS setting.
 const themeScript = `(function(){try{var t=localStorage.getItem("theme");if(t!=="light"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}document.documentElement.setAttribute("data-theme",t)}catch(e){}})()`;
 
+// Also before first paint: turn on entrance and scroll animations unless the
+// visitor prefers reduced motion (see ScrollReveal and the [data-motion] styles).
+const motionScript = `(function(){try{if(matchMedia("(prefers-reduced-motion: no-preference)").matches)document.documentElement.setAttribute("data-motion","")}catch(e){}})()`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -47,6 +52,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script dangerouslySetInnerHTML={{ __html: motionScript }} />
       </head>
       <body>
         <a href="#main" className="skip-link">
@@ -56,6 +62,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <main id="main">{children}</main>
         <Footer />
         <Spotlight />
+        <ScrollReveal />
       </body>
     </html>
   );

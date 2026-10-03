@@ -1,0 +1,88 @@
+---
+title: From Figma Variables to Tailwind, Without the Copy-Paste
+abstract: Design tokens only help if design and code read from the same source. Here's how I set up a pipeline where Figma variables become Tailwind theme values and React props, and what I learned about naming along the way.
+publishedOn: 2026-09-30
+category: design-systems
+---
+
+Every design system I've worked on has hit the same wall. The Figma library says the primary button is `#4F46E5`. The codebase says `#4f46e6`. Nobody remembers who changed what, and a designer spends their Friday filing "colour is slightly off" tickets.
+
+The fix isn't more discipline. It's making sure there is **one source of truth**, and that everything else is generated from it.
+
+## Three layers of tokens
+
+Before any tooling, get the structure right. I split tokens into three layers:
+
+1. **Primitives** are the raw palette: `blue-600`, `space-4`, `radius-lg`. They describe _what_ a value is, never where it's used.
+2. **Semantic tokens** describe intent: `color-action-primary`, `color-text-muted`, `space-stack-md`. They point at primitives.
+3. **Component tokens** are optional and narrow: `button-primary-bg`. Use them only when a component genuinely needs to differ from the semantic default.
+
+Components should only ever use the semantic layer. That's what makes rebranding (or adding a second brand) a matter of re-pointing tokens instead of rewriting components.
+
+<Callout type="info" title="One brand, many brands">
+In Figma, put each brand in its own **mode** on the semantic collection. The primitives stay shared, and each mode points the semantic names at different primitives. That maps directly onto CSS custom properties under a `[data-brand]` attribute.
+</Callout>
+
+## Exporting from Figma
+
+Figma variables can be read through the REST API or exported with a plugin. Either way, aim for a plain JSON file that lives in Git:
+
+```json
+{
+  "color": {
+    "action": {
+      "primary": { "$value": "{blue.600}", "$type": "color" }
+    },
+    "text": {
+      "muted": { "$value": "{gray.500}", "$type": "color" }
+    }
+  }
+}
+```
+
+The `$value` / `$type` shape follows the W3C Design Tokens format, which most tools now understand. Committing the file means every token change shows up in a pull request, where engineers and designers can review it together.
+
+## Turning tokens into CSS and Tailwind
+
+A small build step (Style Dictionary works well) turns the JSON into CSS custom properties:
+
+```css
+:root {
+  --color-action-primary: #4f46e5;
+  --color-text-muted: #6b7280;
+}
+
+[data-brand="acme"] {
+  --color-action-primary: #0f766e;
+}
+```
+
+Then Tailwind reads the custom properties instead of hard-coded hex values:
+
+```js
+// tailwind.config.js
+export default {
+  theme: {
+    extend: {
+      colors: {
+        action: { primary: "var(--color-action-primary)" },
+        text: { muted: "var(--color-text-muted)" },
+      },
+    },
+  },
+};
+```
+
+Now `bg-action-primary` in a React component follows whatever Figma says, for every brand, without anyone copying a value by hand.
+
+## Naming is the hard part
+
+The tooling took an afternoon. The naming took weeks. A few rules that saved me:
+
+- **Name by role, not by look.** `color-danger` survives a palette change; `color-red` doesn't.
+- **Match the names in Figma and code exactly.** If a designer says "text muted" in a review, an engineer should be able to search for `text-muted` and find it.
+- **Keep the semantic layer small.** If you have forty "secondary" colors, nobody will use them consistently.
+
+<Callout type="success" title="The payoff">
+Once the pipeline exists, a design review and a code review become the same conversation. In my experience that's where most of the time saved comes from: fewer handoff questions, not faster typing.
+</Callout>

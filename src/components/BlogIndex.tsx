@@ -14,15 +14,15 @@ export default function BlogIndex({ active }: { active?: string }) {
 
   return (
     <div className={`wrapper ${styles.page}`}>
-      <p className="eyebrow">{activeLabel ? "Category" : "The blog"}</p>
-      <h1 className="page-title">{activeLabel ?? "Articles & Tutorials"}</h1>
-      <p className="lede">
+      <p className="eyebrow" data-reveal>{activeLabel ? "Category" : "The blog"}</p>
+      <h1 className="page-title" data-reveal>{activeLabel ?? "Articles & Tutorials"}</h1>
+      <p className="lede" data-reveal>
         {activeLabel
           ? `Everything I've written about ${activeLabel}.`
           : "Deep dives, interactive explainers and lessons learned while building for the web."}
       </p>
 
-      <nav className={styles.filters} aria-label="Filter by category">
+      <nav className={styles.filters} aria-label="Filter by category" data-reveal>
         <Link href="/blog" className={styles.filter} aria-current={!active ? "page" : undefined}>
           All <span>{all.length}</span>
         </Link>

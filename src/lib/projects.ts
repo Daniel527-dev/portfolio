@@ -1,5 +1,6 @@
 import path from "node:path";
 import { addProject, dataDir, deleteProject, getDb } from "./db";
+import { SEED_IMAGE_PREFIX } from "./seed-projects";
 import { deleteImage, saveImage } from "./storage";
 import type { ProjectInput } from "./validation";
 
@@ -9,7 +10,9 @@ export function uploadsDir() {
   return process.env.UPLOADS_DIR ?? path.join(dataDir(), "uploads");
 }
 
+/** Starting covers ship in public/projects; uploaded images are served by the API. */
 export function projectImageUrl(image: string) {
+  if (image.startsWith(SEED_IMAGE_PREFIX)) return `/projects/${image}`;
   return `/api/projects/images/${image}`;
 }
 

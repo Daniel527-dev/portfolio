@@ -16,6 +16,7 @@ import {
   listSubscribers,
   MAX_LIKES_PER_VISITOR,
   openDatabase,
+  seedProjectsOnce,
   setProjectFeatured,
 } from "../src/lib/db.ts";
 
@@ -106,5 +107,20 @@ describe("projects", () => {
     assert.equal(deleteProject(db, id)?.image, "h.png");
     assert.equal(deleteProject(db, id), undefined);
     assert.equal(listProjects(db).length, 1);
+  });
+
+  test("seed the starting history once, even after it is deleted", () => {
+    const seed = [
+      { ...base, title: "Seeded A", year: 2024, image: "seed-a.png", featured: true },
+      { ...base, title: "Seeded B", year: 2020, image: "seed-b.png" },
+    ];
+    assert.equal(seedProjectsOnce(db, seed), true);
+    assert.deepEqual(
+      listProjects(db, { featuredOnly: true }).map((p) => p.title),
+      ["Seeded A"],
+    );
+    for (const p of listProjects(db)) deleteProject(db, p.id);
+    assert.equal(seedProjectsOnce(db, seed), false);
+    assert.equal(listProjects(db).length, 0);
   });
 });

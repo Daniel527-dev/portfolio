@@ -1,13 +1,15 @@
 import Link from "next/link";
+import ImpactStats from "@/components/ImpactStats";
 import Mascot from "@/components/Mascot";
 import NewsletterForm from "@/components/NewsletterForm";
 import PostCard from "@/components/PostCard";
 import ProjectCard from "@/components/ProjectCard";
+import RotatingWord from "@/components/RotatingWord";
 import Sparkles from "@/components/Sparkles";
 import { ArrowRightIcon } from "@/components/icons";
 import { getPostMetas } from "@/lib/content";
 import { getAllViews, getDb, listProjects } from "@/lib/db";
-import { categories, site } from "@/site.config";
+import { categories, highlights, site } from "@/site.config";
 import styles from "./page.module.css";
 
 // "Popular" comes from live view counts, so refresh the page once a minute.
@@ -33,19 +35,24 @@ export default function Home() {
               Hi, I&apos;m {site.shortName} <span className={styles.wave}>👋</span>
             </p>
             <h1 className={styles.heroTitle}>
-              I build <Sparkles>delightful</Sparkles> things for the web.
+              I design{" "}
+              <Sparkles>
+                <RotatingWord words={["software", "dashboards", "interfaces", "products"]} />
+              </Sparkles>
+              <br />
+              people enjoy using.
             </h1>
             <p className={styles.heroLede}>
-              I&apos;m a {site.role.toLowerCase()} who cares about the little details: springy
-              animations, accessible components and APIs that are a joy to use. Here I write
-              tutorials about what I learn and share the things I build.
+              I&apos;m a senior UI/UX designer and design technologist with 10 years of
+              experience. I design product interfaces, data-heavy dashboards and brand systems,
+              then build them in React and TypeScript so the design holds up in production.
             </p>
             <div className={styles.ctas}>
-              <Link href="/blog" className={styles.primaryCta}>
-                Read the articles <ArrowRightIcon size={18} />
+              <Link href="/projects" className={styles.primaryCta}>
+                See my work <ArrowRightIcon size={18} />
               </Link>
-              <Link href="/projects" className={styles.secondaryCta}>
-                See my projects
+              <Link href="/blog" className={styles.secondaryCta}>
+                Read the articles
               </Link>
             </div>
           </div>
@@ -58,55 +65,13 @@ export default function Home() {
         </svg>
       </section>
 
-      <div className={`wrapper ${styles.columns}`}>
-        <section aria-labelledby="recent-heading">
-          <h2 id="recent-heading" className={styles.sectionTitle}>
-            Recently Published
-          </h2>
-          <div className={styles.postList}>
-            {posts.slice(0, 5).map((post) => (
-              <PostCard key={post.slug} post={post} />
-            ))}
-          </div>
-          <Link href="/blog" className={styles.allLink}>
-            View all articles <ArrowRightIcon size={16} />
-          </Link>
-        </section>
-
-        <aside className={styles.sidebar}>
-          <section aria-labelledby="categories-heading">
-            <h2 id="categories-heading" className={styles.sideTitle}>
-              Browse by Category
-            </h2>
-            <ul className={styles.pills}>
-              {categories.map((c) => (
-                <li key={c.slug}>
-                  <Link href={`/categories/${c.slug}`} className={styles.pill}>
-                    {c.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <section aria-labelledby="popular-heading">
-            <h2 id="popular-heading" className={styles.sideTitle}>
-              Popular Content
-            </h2>
-            <ol className={styles.popular}>
-              {popular.map((post) => (
-                <li key={post.slug}>
-                  <Link href={`/blog/${post.slug}`}>{post.title}</Link>
-                </li>
-              ))}
-            </ol>
-          </section>
-        </aside>
-      </div>
+      <section className={`wrapper ${styles.impact}`} aria-label="Highlights">
+        <ImpactStats stats={highlights} />
+      </section>
 
       {selected.length > 0 && (
       <section className={`wrapper ${styles.projects}`} aria-labelledby="projects-heading">
-        <div className={styles.projectsHeader}>
+        <div className={styles.projectsHeader} data-reveal>
           <h2 id="projects-heading" className={styles.sectionTitle}>
             Selected Projects
           </h2>
@@ -122,7 +87,53 @@ export default function Home() {
       </section>
       )}
 
-      <div className={`wrapper ${styles.newsletter}`}>
+      <div className={`wrapper ${styles.columns}`}>
+        <section aria-labelledby="recent-heading">
+          <h2 id="recent-heading" className={styles.sectionTitle} data-reveal>
+            Recently Published
+          </h2>
+          <div className={styles.postList}>
+            {posts.slice(0, 5).map((post) => (
+              <PostCard key={post.slug} post={post} />
+            ))}
+          </div>
+          <Link href="/blog" className={styles.allLink}>
+            View all articles <ArrowRightIcon size={16} />
+          </Link>
+        </section>
+
+        <aside className={styles.sidebar}>
+          <section aria-labelledby="categories-heading" data-reveal>
+            <h2 id="categories-heading" className={styles.sideTitle}>
+              Browse by Category
+            </h2>
+            <ul className={styles.pills}>
+              {categories.map((c) => (
+                <li key={c.slug}>
+                  <Link href={`/categories/${c.slug}`} className={styles.pill}>
+                    {c.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section aria-labelledby="popular-heading" data-reveal>
+            <h2 id="popular-heading" className={styles.sideTitle}>
+              Popular Content
+            </h2>
+            <ol className={styles.popular}>
+              {popular.map((post) => (
+                <li key={post.slug}>
+                  <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+                </li>
+              ))}
+            </ol>
+          </section>
+        </aside>
+      </div>
+
+      <div className={`wrapper ${styles.newsletter}`} data-reveal>
         <NewsletterForm />
       </div>
     </>

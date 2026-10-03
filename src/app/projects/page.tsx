@@ -16,9 +16,9 @@ export default function ProjectsPage() {
 
   return (
     <div className={`wrapper ${styles.page}`}>
-      <p className="eyebrow">Work history</p>
-      <h1 className="page-title">Projects</h1>
-      <p className="lede">
+      <p className="eyebrow" data-reveal>Work history</p>
+      <h1 className="page-title" data-reveal>Projects</h1>
+      <p className="lede" data-reveal>
         A selection of things I&apos;ve designed and built, newest first. Click an image to see it
         larger.
       </p>

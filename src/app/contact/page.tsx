@@ -12,9 +12,9 @@ export default function ContactPage() {
   return (
     <div className={`wrapper ${styles.page}`}>
       <div className={styles.intro}>
-        <p className="eyebrow">Say hello</p>
-        <h1 className="page-title">Let&apos;s talk</h1>
-        <p className="lede">
+        <p className="eyebrow" data-reveal>Say hello</p>
+        <h1 className="page-title" data-reveal>Let&apos;s talk</h1>
+        <p className="lede" data-reveal>
           Have a project in mind, a question about an article, or just want to share something cool
           you built? Send me a message and I&apos;ll get back to you.
         </p>

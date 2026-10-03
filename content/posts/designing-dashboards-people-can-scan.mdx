@@ -1,0 +1,58 @@
+---
+title: Designing Dashboards People Can Actually Scan
+abstract: Data-heavy screens fail when every number shouts at once. A practical guide to hierarchy, tables, filters and progressive disclosure for dashboards that engineers and analysts use all day.
+publishedOn: 2026-08-20
+category: ui-design
+---
+
+Most dashboards are designed from the database outward. Every field gets a column, every metric gets a card, and the result is a screen where everything is technically available and nothing is easy to find.
+
+People don't read dashboards. They **scan** them, looking for the one thing that needs their attention. Good dashboard design is mostly about helping that scan.
+
+## Start with the question, not the data
+
+Before drawing anything, write down the three questions someone opens this screen to answer. For an engineer searching for parts, it might be:
+
+1. Does a part exist that meets my specs?
+2. Is it in stock, and at what price?
+3. How does it compare to the one I'm using now?
+
+Every element on the screen should help answer one of those. If it doesn't, it belongs one click away, not on the first view.
+
+## Give the screen one clear hierarchy
+
+A dashboard has three levels, and they should look different:
+
+- **Summary**: a handful of key numbers at the top. Large type, very little decoration.
+- **Detail**: the table or chart where the real work happens. This gets the most space.
+- **Controls**: filters, date ranges, exports. Quiet, consistent and always in the same place.
+
+When summary cards, charts and filters all use the same weight, the eye has nowhere to land.
+
+## Tables are the workhorse
+
+In data-heavy products, the table is usually the most-used component. A few details make a big difference:
+
+- **Right-align numbers** and use tabular figures (`font-variant-numeric: tabular-nums`) so digits line up.
+- **Keep row height consistent** and let people choose density. Power users often want compact rows.
+- **Make status scannable** with a colored badge _and_ a label. Never rely on color alone.
+- **Freeze the first column** on wide tables so people don't lose track of which row they're in.
+
+<Callout type="info" title="Accessibility is part of scannability">
+Clear focus states, real `<table>` markup and sortable headers announced to screen readers aren't extras. They're the same structure that makes the table easy to scan visually.
+</Callout>
+
+## Filters should show their state
+
+Advanced filtering is where many dashboards get frustrating. Two rules help:
+
+1. **Show active filters as removable chips** above the results, so people can always see why the list looks the way it does.
+2. **Show result counts** next to filter options when you can. "In stock (1,240)" prevents dead ends before they happen.
+
+## Progressive disclosure
+
+Not every detail deserves the first screen. Inspection panels that slide in from the side let people dig into one row without losing their place in the list. That beats navigating to a new page and back again.
+
+<Callout type="success" title="Measure it">
+The best test of a dashboard is time-to-task. Pick the top three tasks, time a few real users before and after a change, and let that guide the next iteration.
+</Callout>

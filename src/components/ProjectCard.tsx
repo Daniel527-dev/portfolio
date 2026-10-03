@@ -6,8 +6,8 @@ import styles from "./ProjectCard.module.css";
 // One entry of the work history: the image, title, year, a short description and tags.
 export default function ProjectCard({ project }: { project: Project }) {
   return (
-    <article className={styles.card} data-spotlight>
-      <ImageZoom src={projectImageUrl(project.image)} alt={`Screenshot of ${project.title}`} caption={project.title} />
+    <article className={styles.card} data-spotlight data-reveal>
+      <ImageZoom src={projectImageUrl(project.image)} alt={`Cover image for ${project.title}`} caption={project.title} />
       <div className={styles.body}>
         <div className={styles.titleRow}>
           <h3 className={styles.title}>{project.title}</h3>

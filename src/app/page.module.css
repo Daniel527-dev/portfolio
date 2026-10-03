@@ -120,7 +120,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) 300px;
   gap: 64px;
-  margin-top: 56px;
+  margin-top: 96px;
 }
 
 .sectionTitle {
@@ -231,7 +231,7 @@
 /* ---------- projects ---------- */
 
 .projects {
-  margin-top: 96px;
+  margin-top: 72px;
 }
 
 .projectsHeader {
@@ -250,6 +250,51 @@
 
 .newsletter {
   margin-top: 96px;
+}
+
+/* ---------- highlights ---------- */
+
+.impact {
+  margin-top: 40px;
+}
+
+/* ---------- hero entrance ---------- */
+
+/* Runs from first paint (html[data-motion] is set by the head script), so it
+   doesn't wait for JavaScript. Each line rises in a beat after the previous one. */
+:global([data-motion]) .heroText > * {
+  animation: hero-rise 800ms var(--ease-out) backwards;
+}
+
+:global([data-motion]) .heroText > :nth-child(2) {
+  animation-delay: 90ms;
+}
+
+:global([data-motion]) .heroText > :nth-child(3) {
+  animation-delay: 180ms;
+}
+
+:global([data-motion]) .heroText > :nth-child(4) {
+  animation-delay: 270ms;
+}
+
+:global([data-motion]) .heroArt {
+  animation: hero-pop 900ms var(--ease-spring) 200ms backwards;
+}
+
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    translate: 0 24px;
+  }
+}
+
+@keyframes hero-pop {
+  from {
+    opacity: 0;
+    scale: 0.7;
+    rotate: -8deg;
+  }
 }
 
 /* ---------- responsive ---------- */
