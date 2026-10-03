@@ -40,3 +40,19 @@ export async function readJson(req: Request): Promise<Record<string, unknown> | 
     return null;
   }
 }
+
+/**
+ * Rejects cross-site requests to state-changing owner endpoints. Browsers always
+ * send Origin on cross-origin POST/PATCH/DELETE; a missing header (curl, same-origin
+ * fetch in some browsers) falls back to the SameSite=Lax session cookie.
+ */
+export function isSameOrigin(req: Request) {
+  const origin = req.headers.get("origin");
+  if (!origin) return true;
+  const host = req.headers.get("x-forwarded-host") ?? req.headers.get("host");
+  try {
+    return new URL(origin).host === host;
+  } catch {
+    return false;
+  }
+}

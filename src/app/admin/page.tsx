@@ -1,47 +1,39 @@
 import type { Metadata } from "next";
-import { adminConfigured, isAdmin } from "@/lib/auth";
+import GoogleSignIn from "@/components/GoogleSignIn";
+import { authConfigured, googleClientId, isOwner } from "@/lib/auth";
 import { getPostMetas } from "@/lib/content";
 import { getAllLikes, getAllViews, getDb, listMessages, listSubscribers } from "@/lib/db";
-import { login, logout, removeMessage } from "./actions";
+import { logout, removeMessage } from "./actions";
 import styles from "./admin.module.css";
 
 export const metadata: Metadata = { title: "Dashboard", robots: { index: false } };
 
-const ERRORS: Record<string, string> = {
-  invalid: "That password isn't right.",
-  locked: "Too many attempts. Wait 15 minutes and try again.",
-};
+// Depends on the session cookie and on env vars that may be set after the build.
+export const dynamic = "force-dynamic";
 
-export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
-  const { error } = await searchParams;
-
-  if (!adminConfigured()) {
+export default async function AdminPage() {
+  if (!authConfigured()) {
     return (
       <div className={`wrapper ${styles.narrow}`}>
         <h1 className="page-title">Dashboard</h1>
         <p className="lede">
-          Set <code>ADMIN_PASSWORD</code> (and <code>SESSION_SECRET</code>) in <code>.env.local</code>{" "}
-          and restart the server to enable the dashboard.
+          Set <code>OWNER_EMAIL</code> (your Gmail address), <code>GOOGLE_CLIENT_ID</code> and{" "}
+          <code>SESSION_SECRET</code> in <code>.env.local</code> and restart the server to enable the
+          dashboard. See the README for how to create the Google client ID.
         </p>
       </div>
     );
   }
 
-  if (!(await isAdmin())) {
+  if (!(await isOwner())) {
     return (
       <div className={`wrapper ${styles.narrow}`}>
         <h1 className="page-title">Dashboard</h1>
-        <p className="lede">Sign in to see subscribers, messages and article stats.</p>
-        <form action={login} className={styles.login}>
-          <label htmlFor="password">Password</label>
-          <input id="password" name="password" type="password" autoComplete="current-password" required />
-          {typeof error === "string" && ERRORS[error] && (
-            <p className={styles.error} role="alert">
-              {ERRORS[error]}
-            </p>
-          )}
-          <button className={styles.button}>Sign in</button>
-        </form>
+        <p className="lede">
+          Sign in with the site owner&apos;s Google account to see messages, subscribers and article
+          stats.
+        </p>
+        <GoogleSignIn clientId={googleClientId()!} />
       </div>
     );
   }
