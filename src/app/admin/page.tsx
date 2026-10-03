@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import GoogleSignIn from "@/components/GoogleSignIn";
+import ProjectManager from "@/components/ProjectManager";
 import { authConfigured, googleClientId, isOwner } from "@/lib/auth";
 import { getPostMetas } from "@/lib/content";
-import { getAllLikes, getAllViews, getDb, listMessages, listSubscribers } from "@/lib/db";
+import { getAllLikes, getAllViews, getDb, listMessages, listProjects, listSubscribers } from "@/lib/db";
+import { projectImageUrl } from "@/lib/projects";
 import { logout, removeMessage } from "./actions";
 import styles from "./admin.module.css";
 
@@ -30,8 +32,8 @@ export default async function AdminPage() {
       <div className={`wrapper ${styles.narrow}`}>
         <h1 className="page-title">Dashboard</h1>
         <p className="lede">
-          Sign in with the site owner&apos;s Google account to see messages, subscribers and article
-          stats.
+          Sign in with the site owner&apos;s Google account to upload projects and see messages,
+          subscribers and article stats.
         </p>
         <GoogleSignIn clientId={googleClientId()!} />
       </div>
@@ -44,6 +46,7 @@ export default async function AdminPage() {
   const posts = getPostMetas();
   const subscribers = listSubscribers(db);
   const messages = listMessages(db);
+  const projects = listProjects(db).map((p) => ({ ...p, imageUrl: projectImageUrl(p.image) }));
   const totalViews = [...views.values()].reduce((a, b) => a + b, 0);
   const totalLikes = [...likes.values()].reduce((a, b) => a + b, 0);
 
@@ -57,12 +60,18 @@ export default async function AdminPage() {
       </div>
 
       <div className={styles.stats}>
+        <Stat label="Projects" value={projects.length} />
         <Stat label="Articles" value={posts.length} />
         <Stat label="Total views" value={totalViews} />
         <Stat label="Total likes" value={totalLikes} />
         <Stat label="Subscribers" value={subscribers.length} />
         <Stat label="Messages" value={messages.length} />
       </div>
+
+      <section className={styles.section}>
+        <h2>Projects</h2>
+        <ProjectManager projects={projects} />
+      </section>
 
       <section className={styles.section}>
         <h2>Articles</h2>
