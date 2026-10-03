@@ -6,8 +6,8 @@ import ProjectCard from "@/components/ProjectCard";
 import Sparkles from "@/components/Sparkles";
 import { ArrowRightIcon } from "@/components/icons";
 import { getPostMetas } from "@/lib/content";
-import { getAllViews, getDb } from "@/lib/db";
-import { categories, projects, site } from "@/site.config";
+import { getAllViews, getDb, listProjects } from "@/lib/db";
+import { categories, site } from "@/site.config";
 import styles from "./page.module.css";
 
 // "Popular" comes from live view counts, so refresh the page once a minute.
@@ -15,7 +15,11 @@ export const revalidate = 60;
 
 export default function Home() {
   const posts = getPostMetas();
-  const views = getAllViews(getDb());
+  const db = getDb();
+  const views = getAllViews(db);
+  // Featured work first; until something is featured, show the newest three.
+  const featured = listProjects(db, { featuredOnly: true });
+  const selected = (featured.length > 0 ? featured : listProjects(db)).slice(0, 3);
   const popular = [...posts]
     .sort((a, b) => (views.get(b.slug) ?? 0) - (views.get(a.slug) ?? 0))
     .slice(0, 5);
@@ -100,6 +104,7 @@ export default function Home() {
         </aside>
       </div>
 
+      {selected.length > 0 && (
       <section className={`wrapper ${styles.projects}`} aria-labelledby="projects-heading">
         <div className={styles.projectsHeader}>
           <h2 id="projects-heading" className={styles.sectionTitle}>
@@ -110,13 +115,12 @@ export default function Home() {
           </Link>
         </div>
         <div className={styles.projectGrid}>
-          {projects
-            .filter((p) => p.featured)
-            .map((project) => (
-              <ProjectCard key={project.title} project={project} />
-            ))}
+          {selected.map((project) => (
+            <ProjectCard key={project.id} project={project} />
+          ))}
         </div>
       </section>
+      )}
 
       <div className={`wrapper ${styles.newsletter}`}>
         <NewsletterForm />

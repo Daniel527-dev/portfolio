@@ -1,5 +1,6 @@
 // Everything personal about the site lives here. Swap these values for your own
 // details and the whole site (header, hero, about page, footer, RSS, metadata) follows.
+// The project history is not here: it's stored in the database and managed at /admin.
 
 export const site = {
   name: "Alex Rivera",
@@ -39,69 +40,6 @@ export type CategorySlug = (typeof categories)[number]["slug"];
 export function categoryLabel(slug: string) {
   return categories.find((c) => c.slug === slug)?.label ?? slug;
 }
-
-export const projects = [
-  {
-    title: "Tidepool",
-    year: 2026,
-    description:
-      "A realtime collaborative whiteboard. Cursors, sticky notes and a CRDT sync layer that survives flaky train Wi-Fi.",
-    tags: ["React", "TypeScript", "WebSockets", "Yjs"],
-    href: "https://github.com/",
-    hue: 195,
-    featured: true,
-  },
-  {
-    title: "Pantry",
-    year: 2025,
-    description:
-      "Recipe planner that turns a week of meals into one sorted shopping list. Postgres full-text search does the heavy lifting.",
-    tags: ["Next.js", "PostgreSQL", "Prisma"],
-    href: "https://github.com/",
-    hue: 25,
-    featured: true,
-  },
-  {
-    title: "Springboard",
-    year: 2025,
-    description:
-      "A tiny spring-physics animation library (2 kB) with a visual editor for tuning stiffness and damping by feel.",
-    tags: ["JavaScript", "Animation", "Canvas"],
-    href: "https://github.com/",
-    hue: 280,
-    featured: true,
-  },
-  {
-    title: "Lighthouse Bot",
-    year: 2024,
-    description:
-      "GitHub App that runs performance audits on every pull request and comments when Core Web Vitals regress.",
-    tags: ["Node.js", "GitHub API", "Puppeteer"],
-    href: "https://github.com/",
-    hue: 140,
-    featured: false,
-  },
-  {
-    title: "Palette Party",
-    year: 2024,
-    description:
-      "Generates accessible colour palettes from a photo and checks every pairing against WCAG contrast rules.",
-    tags: ["CSS", "Color science", "Vite"],
-    href: "https://github.com/",
-    hue: 330,
-    featured: false,
-  },
-  {
-    title: "Ledger Lite",
-    year: 2023,
-    description:
-      "Offline-first budgeting PWA. IndexedDB on the device, optional encrypted sync to a small Express API.",
-    tags: ["PWA", "Express", "IndexedDB"],
-    href: "https://github.com/",
-    hue: 50,
-    featured: false,
-  },
-];
 
 export const experience = [
   {
