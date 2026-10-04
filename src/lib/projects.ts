@@ -2,7 +2,7 @@ import path from "node:path";
 import { addProject, addProjectImage, dataDir, deleteProject, deleteProjectImage, getDb } from "./db";
 import { SEED_IMAGE_PREFIX } from "./seed-projects";
 import { deleteImage, saveImage } from "./storage";
-import type { ProjectInput } from "./validation";
+import type { GalleryImageInput, ProjectInput } from "./validation";
 
 // Keeps a project's database rows and its image files in step.
 
@@ -27,11 +27,11 @@ export function createProject(input: ProjectInput, imageBytes: Uint8Array) {
   }
 }
 
-/** Adds a sample image to a project's gallery, with the same cleanup on failure. */
-export function createProjectImage(projectId: number, caption: string, imageBytes: Uint8Array) {
+/** Adds a sample or reference image to a project's gallery, with the same cleanup on failure. */
+export function createProjectImage(projectId: number, input: GalleryImageInput, imageBytes: Uint8Array) {
   const image = saveImage(uploadsDir(), imageBytes);
   try {
-    return addProjectImage(getDb(), { projectId, image, caption });
+    return addProjectImage(getDb(), { projectId, image, ...input });
   } catch (error) {
     deleteImage(uploadsDir(), image);
     throw error;

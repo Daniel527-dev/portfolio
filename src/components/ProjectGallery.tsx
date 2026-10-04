@@ -4,19 +4,27 @@ import { useRef, useState } from "react";
 import { ArrowRightIcon } from "./icons";
 import styles from "./ProjectGallery.module.css";
 
-export type GalleryImage = { src: string; alt: string; caption: string };
+export type GalleryImage = {
+  src: string;
+  alt: string;
+  caption: string;
+  /** "own" for the cover and samples; "reference" for other designers' credited work. */
+  kind: "own" | "reference";
+  credit?: string;
+  sourceUrl?: string;
+};
 
 const MAX_THUMBS = 4;
 
-// A project's cover plus a strip of sample thumbnails. Any image opens a dialog
-// that pages through the whole set (buttons, arrow keys; Esc or backdrop closes).
+// A project's cover, a strip of its own sample images, and a separate, clearly
+// labeled strip of references (other designers' work, credited by name). Any
+// image opens a dialog that pages through the whole set (buttons, arrow keys;
+// Esc or backdrop closes). Expects own images first, then references.
 export default function ProjectGallery({ title, images }: { title: string; images: GalleryImage[] }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [index, setIndex] = useState(0);
   const count = images.length;
-  const samples = images.slice(1);
-  const shown = samples.slice(0, MAX_THUMBS);
-  const hidden = samples.length - shown.length;
+  const ownCount = images.filter((img) => img.kind === "own").length;
   const current = images[index];
 
   function open(i: number) {
@@ -24,6 +32,38 @@ export default function ProjectGallery({ title, images }: { title: string; image
     dialogRef.current?.showModal();
   }
   const step = (delta: number) => setIndex((i) => (i + delta + count) % count);
+
+  const strip = (from: number, to: number, label: string, isRef: boolean) => {
+    const list = images.slice(from, to);
+    const shown = list.slice(0, MAX_THUMBS);
+    const hidden = list.length - shown.length;
+    if (shown.length === 0) return null;
+    return (
+      <div className={isRef ? styles.refs : undefined}>
+        {isRef && <p className={styles.stripLabel}>{label}</p>}
+        <ul className={styles.strip} aria-label={label}>
+          {shown.map((img, i) => (
+            <li key={img.src}>
+              <button
+                type="button"
+                className={`${styles.thumb} ${isRef ? styles.refThumb : ""}`}
+                onClick={() => open(from + i)}
+                aria-label={
+                  isRef
+                    ? `View reference by ${img.credit}: ${img.caption}`
+                    : `View sample ${i + 1}: ${img.caption || img.alt}`
+                }
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={img.src} alt="" loading="lazy" decoding="async" />
+                {hidden > 0 && i === shown.length - 1 && <span className={styles.more}>+{hidden}</span>}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
 
   return (
     <>
@@ -35,27 +75,10 @@ export default function ProjectGallery({ title, images }: { title: string; image
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={images[0].src} alt={images[0].alt} className={styles.coverImg} loading="lazy" decoding="async" />
-        {count > 1 && <span className={styles.count}>{count} images</span>}
       </button>
 
-      {shown.length > 0 && (
-        <ul className={styles.strip} aria-label="Sample images">
-          {shown.map((img, i) => (
-            <li key={img.src}>
-              <button
-                type="button"
-                className={styles.thumb}
-                onClick={() => open(i + 1)}
-                aria-label={`View sample ${i + 1}: ${img.caption || img.alt}`}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={img.src} alt="" loading="lazy" decoding="async" />
-                {hidden > 0 && i === shown.length - 1 && <span className={styles.more}>+{hidden}</span>}
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+      {strip(1, ownCount, "Sample images", false)}
+      {strip(ownCount, count, "References", true)}
 
       <dialog
         ref={dialogRef}
@@ -75,8 +98,18 @@ export default function ProjectGallery({ title, images }: { title: string; image
           <img key={current.src} src={current.src} alt={current.alt} className={styles.full} />
           <figcaption className={styles.caption}>
             <span className={styles.captionText}>
-              <strong>{title}</strong>
-              {current.caption && <span>{current.caption}</span>}
+              {current.kind === "reference" ? (
+                <>
+                  <span className={styles.refLine}>
+                    <strong>{current.caption}</strong>{" "}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <strong>{title}</strong>
+                  {current.caption && <span>{current.caption}</span>}
+                </>
+              )}
             </span>
             <span className={styles.controls}>
               {count > 1 && (

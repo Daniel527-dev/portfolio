@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { validateCaption, validateContact, validateEmail, validateProject } from "../src/lib/validation.ts";
+import {
+  validateCaption,
+  validateContact,
+  validateEmail,
+  validateGalleryImage,
+  validateProject,
+} from "../src/lib/validation.ts";
 
 describe("validateEmail", () => {
   test("normalises valid addresses", () => {
@@ -61,5 +67,26 @@ describe("validateCaption", () => {
   test("rejects captions over 160 characters", () => {
     const result = validateCaption("x".repeat(161));
     assert.equal(result.ok, false);
+  });
+});
+
+describe("validateGalleryImage", () => {
+  test("own samples need no credit and drop any that is sent", () => {
+    assert.deepEqual(validateGalleryImage({ caption: "Mine", credit: "ignored" }), {
+      ok: true,
+      data: { caption: "Mine", kind: "sample", credit: "", sourceUrl: "" },
+    });
+  });
+
+  test("references require a credit and an http(s) link", () => {
+    const missing = validateGalleryImage({ kind: "reference", caption: "x" });
+    assert.equal(missing.ok, false);
+    assert.ok(!missing.ok && missing.errors.credit && missing.errors.sourceUrl);
+    const badUrl = validateGalleryImage({ kind: "reference", credit: "Studio", sourceUrl: "javascript:alert(1)" });
+    assert.ok(!badUrl.ok && badUrl.errors.sourceUrl);
+    assert.deepEqual(validateGalleryImage({ kind: "reference", credit: " Studio ", sourceUrl: "https://studio.test/work" }), {
+      ok: true,
+      data: { caption: "", kind: "reference", credit: "Studio", sourceUrl: "https://studio.test/work" },
+    });
   });
 });

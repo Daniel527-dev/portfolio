@@ -49,6 +49,9 @@ const SCHEMA = `
     project_id INTEGER NOT NULL,
     image      TEXT NOT NULL,
     caption    TEXT NOT NULL DEFAULT '',
+    kind       TEXT NOT NULL DEFAULT 'sample',
+    credit     TEXT NOT NULL DEFAULT '',
+    source_url TEXT NOT NULL DEFAULT '',
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
   CREATE INDEX IF NOT EXISTS project_images_by_project ON project_images (project_id, id);
@@ -64,7 +67,22 @@ export function openDatabase(file: string) {
   db.exec("PRAGMA journal_mode = WAL;");
   db.exec("PRAGMA busy_timeout = 3000;");
   db.exec(SCHEMA);
+  migrate(db);
   return db;
+}
+
+// Columns added after a table first shipped; CREATE TABLE IF NOT EXISTS won't add them.
+const ADDED_COLUMNS: [table: string, column: string, definition: string][] = [
+  ["project_images", "kind", "TEXT NOT NULL DEFAULT 'sample'"],
+  ["project_images", "credit", "TEXT NOT NULL DEFAULT ''"],
+  ["project_images", "source_url", "TEXT NOT NULL DEFAULT ''"],
+];
+
+function migrate(db: DatabaseSync) {
+  for (const [table, column, definition] of ADDED_COLUMNS) {
+    const columns = db.prepare(`PRAGMA table_info(${table})`).all() as { name: string }[];
+    if (!columns.some((c) => c.name === column)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  }
 }
 
 // Where the database and uploaded images live. Serverless hosts (Netlify, Vercel,
@@ -96,6 +114,7 @@ export function getDb() {
     globalForDb.__portfolioDb = openDatabase(file);
     seedProjectsOnce(globalForDb.__portfolioDb, seedProjects);
     seedProjectSamplesOnce(globalForDb.__portfolioDb, seedProjects);
+    seedProjectReferencesOnce(globalForDb.__portfolioDb, seedProjects);
   }
   return globalForDb.__portfolioDb;
 }
@@ -197,13 +216,21 @@ export function deleteMessage(db: DatabaseSync, id: number) {
 
 /* ---------- projects (work history) ---------- */
 
-/** An extra image shown in a project's gallery, after the cover. */
+/**
+ * An extra image in a project's gallery, after the cover. A "sample" is the owner's
+ * own work; a "reference" is someone else's, always shown credited and labeled.
+ */
 export type ProjectImage = {
   id: number;
   projectId: number;
   /** File name: an upload in the uploads directory, or a "seed-" file in public/projects. */
   image: string;
   caption: string;
+  kind: "sample" | "reference";
+  /** Who made it (references only). */
+  credit: string;
+  /** Where the original lives (references only). */
+  sourceUrl: string;
 };
 
 export type Project = {
@@ -230,10 +257,26 @@ type ProjectRow = {
   created_at: string;
 };
 
-type ProjectImageRow = { id: number; project_id: number; image: string; caption: string };
+type ProjectImageRow = {
+  id: number;
+  project_id: number;
+  image: string;
+  caption: string;
+  kind: string;
+  credit: string;
+  source_url: string;
+};
 
 function toProjectImage(row: ProjectImageRow): ProjectImage {
-  return { id: row.id, projectId: row.project_id, image: row.image, caption: row.caption };
+  return {
+    id: row.id,
+    projectId: row.project_id,
+    image: row.image,
+    caption: row.caption,
+    kind: row.kind === "reference" ? "reference" : "sample",
+    credit: row.credit,
+    sourceUrl: row.source_url,
+  };
 }
 
 /** Attaches each project's samples (in upload order) with one query. */
@@ -305,10 +348,21 @@ export function deleteProject(db: DatabaseSync, id: number) {
 
 /* ---------- project sample images ---------- */
 
-export function addProjectImage(db: DatabaseSync, s: { projectId: number; image: string; caption: string }) {
+export type NewProjectImage = {
+  projectId: number;
+  image: string;
+  caption: string;
+  kind?: ProjectImage["kind"];
+  credit?: string;
+  sourceUrl?: string;
+};
+
+export function addProjectImage(db: DatabaseSync, s: NewProjectImage) {
   const result = db
-    .prepare("INSERT INTO project_images (project_id, image, caption) VALUES (?, ?, ?)")
-    .run(s.projectId, s.image, s.caption);
+    .prepare(
+      "INSERT INTO project_images (project_id, image, caption, kind, credit, source_url) VALUES (?, ?, ?, ?, ?, ?)",
+    )
+    .run(s.projectId, s.image, s.caption, s.kind ?? "sample", s.credit ?? "", s.sourceUrl ?? "");
   return Number(result.lastInsertRowid);
 }
 
@@ -321,6 +375,10 @@ export function setProjectImageCaption(db: DatabaseSync, id: number, caption: st
   db.prepare("UPDATE project_images SET caption = ? WHERE id = ?").run(caption, id);
 }
 
+export function setProjectImageCredit(db: DatabaseSync, id: number, credit: string, sourceUrl: string) {
+  db.prepare("UPDATE project_images SET credit = ?, source_url = ? WHERE id = ?").run(credit, sourceUrl, id);
+}
+
 /** Deletes the row and returns it, so the caller can remove the image file too. */
 export function deleteProjectImage(db: DatabaseSync, id: number) {
   const sample = getProjectImage(db, id);
@@ -330,7 +388,10 @@ export function deleteProjectImage(db: DatabaseSync, id: number) {
 
 /* ---------- starting content ---------- */
 
-type SeedProject = Parameters<typeof addProject>[1] & { samples?: { image: string; caption: string }[] };
+type SeedImage = Omit<NewProjectImage, "projectId">;
+type SeedProject = Parameters<typeof addProject>[1] & { samples?: SeedImage[]; references?: SeedImage[] };
+
+const asReference = (r: SeedImage): SeedImage => ({ ...r, kind: "reference" });
 
 function flagged(db: DatabaseSync, key: string) {
   return Boolean(db.prepare("SELECT 1 FROM meta WHERE key = ?").get(key));
@@ -359,31 +420,79 @@ function setFlag(db: DatabaseSync, key: string) {
 export function seedProjectsOnce(db: DatabaseSync, projects: SeedProject[]) {
   if (flagged(db, "projects_seeded")) return false;
   inTransaction(db, () => {
-    for (const { samples = [], ...p } of projects) {
+    for (const { samples = [], references = [], ...p } of projects) {
       const projectId = addProject(db, p);
       for (const s of samples) addProjectImage(db, { projectId, ...s });
+      for (const r of references) addProjectImage(db, { projectId, ...asReference(r) });
     }
     setFlag(db, "projects_seeded");
-    setFlag(db, "project_samples_seeded");
+    setFlag(db, SAMPLES_FLAG);
+    setFlag(db, REFERENCES_FLAG);
+  });
+  return true;
+}
+
+/** Bump when the seed samples change, so existing databases are brought in line. */
+const SAMPLES_FLAG = "project_samples_seeded_v2";
+
+/**
+ * Brings each seed project's starting samples in line with the current set, once per
+ * version: seed samples no longer in the set are removed, and missing ones are added
+ * unless the owner has uploaded samples of their own. Owner uploads are never touched,
+ * and projects the owner deleted are skipped.
+ */
+export function seedProjectSamplesOnce(db: DatabaseSync, projects: SeedProject[]) {
+  if (flagged(db, SAMPLES_FLAG)) return false;
+  inTransaction(db, () => {
+    for (const { image, samples = [] } of projects) {
+      const row = db.prepare("SELECT id FROM projects WHERE image = ?").get(image) as { id: number } | undefined;
+      if (!row) continue;
+      const keep = new Set(samples.map((x) => x.image));
+      const seeded = db
+        .prepare("SELECT id, image FROM project_images WHERE project_id = ? AND kind = 'sample' AND image LIKE 'seed-sample-%'")
+        .all(row.id) as { id: number; image: string }[];
+      for (const old of seeded) if (!keep.has(old.image)) deleteProjectImage(db, old.id);
+      const ownUploads = db
+        .prepare("SELECT 1 FROM project_images WHERE project_id = ? AND kind = 'sample' AND image NOT LIKE 'seed-%'")
+        .get(row.id);
+      if (ownUploads) continue;
+      const has = db.prepare("SELECT 1 FROM project_images WHERE project_id = ? AND image = ?");
+      for (const x of samples) if (!has.get(row.id, x.image)) addProjectImage(db, { projectId: row.id, ...x });
+    }
+    setFlag(db, SAMPLES_FLAG);
   });
   return true;
 }
 
 /**
- * For databases seeded before galleries existed: adds the starting samples to the
- * seed projects that are still there (matched by cover image), once.
+ * Bump when the seed references change, so existing databases pick up the new ones.
+ * Each version runs once; images a project already has are never added twice.
  */
-export function seedProjectSamplesOnce(db: DatabaseSync, projects: SeedProject[]) {
-  if (flagged(db, "project_samples_seeded")) return false;
+const REFERENCES_FLAG = "project_references_seeded_v5";
+
+/**
+ * For databases seeded before the current reference set: brings each seed project's
+ * references in line with it once. Seed references no longer in the set are removed
+ * (owner uploads are never touched), missing ones are added, and projects the owner
+ * deleted are skipped.
+ */
+export function seedProjectReferencesOnce(db: DatabaseSync, projects: SeedProject[]) {
+  if (flagged(db, REFERENCES_FLAG)) return false;
   inTransaction(db, () => {
-    for (const { image, samples = [] } of projects) {
+    for (const { image, references = [] } of projects) {
       const row = db.prepare("SELECT id FROM projects WHERE image = ?").get(image) as { id: number } | undefined;
       if (!row) continue;
-      const existing = db.prepare("SELECT 1 FROM project_images WHERE project_id = ?").get(row.id);
-      if (existing) continue;
-      for (const s of samples) addProjectImage(db, { projectId: row.id, ...s });
+      const keep = new Set(references.map((r) => r.image));
+      const seeded = db
+        .prepare("SELECT id, image FROM project_images WHERE project_id = ? AND kind = 'reference' AND image LIKE 'seed-ref-%'")
+        .all(row.id) as { id: number; image: string }[];
+      for (const old of seeded) if (!keep.has(old.image)) deleteProjectImage(db, old.id);
+      const has = db.prepare("SELECT 1 FROM project_images WHERE project_id = ? AND image = ?");
+      for (const r of references) {
+        if (!has.get(row.id, r.image)) addProjectImage(db, { projectId: row.id, ...asReference(r) });
+      }
     }
-    setFlag(db, "project_samples_seeded");
+    setFlag(db, REFERENCES_FLAG);
   });
   return true;
 }
