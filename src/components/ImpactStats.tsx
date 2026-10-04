@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { motionAllowed } from "@/lib/motion";
 import styles from "./ImpactStats.module.css";
 
 // A row of headline numbers that count up once they scroll into view. The server
@@ -19,7 +20,7 @@ export default function ImpactStats({ stats }: { stats: Stat[] }) {
 
   useEffect(() => {
     const list = listRef.current;
-    if (!list || !document.documentElement.hasAttribute("data-motion")) return;
+    if (!list || !motionAllowed()) return;
     const format = (s: Stat, n: number) => `${s.prefix}${Math.round(n)}${s.suffix}`;
     numberRefs.current.forEach((el, i) => {
       if (el) el.textContent = format(stats[i], 0);

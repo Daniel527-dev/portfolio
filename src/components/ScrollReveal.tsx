@@ -1,17 +1,18 @@
 "use client";
 
 import { useEffect } from "react";
+import { motionAllowed } from "@/lib/motion";
 
 // Fades and slides up anything marked with data-reveal as it scrolls into view.
 // Elements that enter together are staggered in document order. The hiding itself
-// is CSS gated on html[data-motion], which the head script only sets when the
+// is CSS gated on html[data-motion] (see lib/motion.ts), which is only set when the
 // visitor hasn't asked for reduced motion, so without JS or motion nothing is hidden.
 
 const MAX_STAGGER = 6;
 
 export default function ScrollReveal() {
   useEffect(() => {
-    if (!document.documentElement.hasAttribute("data-motion")) return;
+    if (!motionAllowed()) return;
 
     const io = new IntersectionObserver(
       (entries) => {
