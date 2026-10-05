@@ -115,37 +115,46 @@ html {
 
 /* ---------- scrollbar ---------- */
 
-/* A slim rose-gold thumb on a transparent track. Chrome, Edge and Firefox use the
-   standard properties; Safari, which lacks them, falls back to ::-webkit-scrollbar. */
+/* Slim, pill-shaped scrollbars with a translucent thumb that darkens on hover. */
 :root {
-  --scrollbar-thumb: color-mix(in srgb, var(--color-tertiary) 75%, var(--color-text) 10%);
-  --scrollbar-thumb-hover: var(--color-primary);
+  --scrollbar-thumb: color-mix(in srgb, var(--color-text) 24%, transparent);
+  --scrollbar-thumb-hover: color-mix(in srgb, var(--color-text) 48%, transparent);
 }
 
-html {
+/* Standard properties, used by Firefox and modern Chromium (121+). */
+html,
+body,
+* {
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 
-@supports not (scrollbar-color: auto) {
-  ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
+/* Chromium / WebKit custom styling for the slimmest, cleanest look. Shown on top of
+   content rather than taking its own gutter. */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
 
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
+::-webkit-scrollbar-track {
+  background: transparent;
+}
 
-  ::-webkit-scrollbar-thumb {
-    border: 3px solid transparent;
-    border-radius: 999px;
-    background: var(--scrollbar-thumb) padding-box;
-  }
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+  transition: background-color 150ms;
+}
 
-  ::-webkit-scrollbar-thumb:hover {
-    background: var(--scrollbar-thumb-hover) padding-box;
-  }
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 body {

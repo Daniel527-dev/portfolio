@@ -8,6 +8,8 @@
   background: var(--color-surface);
   color: var(--color-text);
   box-shadow: 0 30px 80px hsl(var(--shadow-color) / 0.35);
+  /* The .results list scrolls internally; the dialog itself never shows a bar. */
+  overflow: hidden;
 }
 
 .dialog::backdrop {
@@ -63,8 +65,9 @@
 
 .results {
   list-style: none;
-  padding: 8px;
+  padding: 8px 6px 8px 8px;
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .result {
