@@ -26,8 +26,8 @@ export const seedProjects = [
     tags: ["Brand Identity", "Web Design", "A/B Testing", "Workshops"],
     image: "seed-enterprise-brand-web-redesigns.png",
     samples: [
-      { image: "Enterprise Brand.png", caption: "MuseoArte: website for a contemporary art museum." },
-      { image: "web Redesign.png", caption: "Luma: e-commerce storefront for a fashion and lifestyle brand." },
+      { image: "seed-Enterprise Brand.png", caption: "Garagemax: brand and social media kit for an automotive service." },
+      { image: "seed-web Redesign.png", caption: "Acouire: website call-to-action and footer redesign." },
     ],
     featured: true,
   },
@@ -54,8 +54,8 @@ export const seedProjects = [
     image: "seed-parametric-search-dashboards.png",
     // Ana's own work.
     samples: [
-      { image: "research.png", caption: "parametric search" },
-      { image: "data Dashboard.png", caption: "Data dashboard for search results" },
+      { image: "seed-research.png", caption: "Nexora: AI-powered analytics dashboard concept." },
+      { image: "seed-data Dashboard.png", caption: "Healthcare appointment dashboard concept." },
     ],
     featured: true,
   },
@@ -67,8 +67,8 @@ export const seedProjects = [
     tags: ["Design Tokens", "Figma", "Git", "Automation"],
     image: "seed-figma-to-git-token-pipeline.png",
     samples: [
-      { image: "Figma.png", caption: "" },
-      { image: "pipeline.png", caption: "" },
+      { image: "seed-Figma.png", caption: "B2B lead generation banner." },
+      { image: "seed-pipeline.png", caption: "Aesthetics and med spa lead research banner." },
     ],
     featured: false,
   },
@@ -80,8 +80,8 @@ export const seedProjects = [
     tags: ["Brand Systems", "Typography", "UI Kits", "Landing Pages"],
     image: "seed-brand-systems-digital-products.png",
     samples: [
-      { image: "digital products.png", caption: "" },
-      { image: "digital Marketing.png", caption: "" },
+      { image: "seed-digital products.png", caption: "Pixie.fun: fantasy sports app." },
+      { image: "seed-digital Marketing.png", caption: "Digital marketing agency landing page." },
     ],
     featured: false,
   },
@@ -93,8 +93,8 @@ export const seedProjects = [
     tags: ["Interactive", "WebGL", "Motion", "Storyboards"],
     image: "seed-interactive-campaigns.png",
     samples: [
-      { image: "interactive Campaign2.png", caption: "" },
-      { image: "interactive Campaign.png", caption: "" },
+      { image: "seed-interactive Campaign2.png", caption: "Interactive mobile campaign concept." },
+      { image: "seed-interactive Campaign.png", caption: "Social media design showcase." },
     ],
     featured: false,
   },

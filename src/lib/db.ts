@@ -433,7 +433,7 @@ export function seedProjectsOnce(db: DatabaseSync, projects: SeedProject[]) {
 }
 
 /** Bump when the seed samples change, so existing databases are brought in line. */
-const SAMPLES_FLAG = "project_samples_seeded_v6";
+const SAMPLES_FLAG = "project_samples_seeded_v7";
 
 /**
  * Brings each seed project's starting samples in line with the current set, once per
