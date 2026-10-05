@@ -27,7 +27,7 @@
   font-weight: 500;
   line-height: 1;
   letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: lining-nums tabular-nums;
   background: linear-gradient(100deg, var(--color-primary), var(--color-secondary));
   background-clip: text;
   -webkit-background-clip: text;

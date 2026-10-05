@@ -104,7 +104,7 @@
 }
 
 :global([data-theme="dark"]) .submit {
-  color: hsl(232deg 30% 9%);
+  color: hsl(22deg 14% 8%);
 }
 
 .submit:disabled {

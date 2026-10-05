@@ -9,7 +9,7 @@ import "./globals.css";
 
 // Fonts are self-hosted from npm (@fontsource-variable) rather than fetched from
 // Google Fonts, so dev and build never depend on reaching fonts.googleapis.com.
-// Inter for body and interface text, Fraunces (an editorial serif) for headings.
+// Inter for body and interface text; Fraunces stays as a fallback serif.
 // Both "standard" files carry the optical-size axis, so letterforms adapt to size.
 const inter = localFont({
   src: "../../node_modules/@fontsource-variable/inter/files/inter-latin-standard-normal.woff2",
@@ -30,6 +30,22 @@ const fraunces = localFont({
   weight: "100 900",
   variable: "--font-fraunces",
 });
+// Cormorant Garamond matches the lettering of the brand logo; it sets the
+// headings and the wordmark.
+const cormorant = localFont({
+  src: [
+    {
+      path: "../../node_modules/@fontsource-variable/cormorant-garamond/files/cormorant-garamond-latin-wght-normal.woff2",
+      style: "normal",
+    },
+    {
+      path: "../../node_modules/@fontsource-variable/cormorant-garamond/files/cormorant-garamond-latin-wght-italic.woff2",
+      style: "italic",
+    },
+  ],
+  weight: "300 700",
+  variable: "--font-cormorant",
+});
 const jetbrains = localFont({
   src: "../../node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2",
   weight: "100 800",
@@ -46,8 +62,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f7f8fd" },
-    { media: "(prefers-color-scheme: dark)", color: "#10121d" },
+    { media: "(prefers-color-scheme: light)", color: "#fbf6ef" },
+    { media: "(prefers-color-scheme: dark)", color: "#171311" },
   ],
 };
 
@@ -63,7 +79,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       data-theme="light"
-      className={`${inter.variable} ${fraunces.variable} ${jetbrains.variable}`}
+      className={`${inter.variable} ${fraunces.variable} ${cormorant.variable} ${jetbrains.variable}`}
       suppressHydrationWarning
     >
       <head>

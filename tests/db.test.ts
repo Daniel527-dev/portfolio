@@ -1,4 +1,8 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { DatabaseSync } from "node:sqlite";
 import { beforeEach, describe, test } from "node:test";
 import {
   addLikes,
@@ -19,6 +23,7 @@ import {
   listSubscribers,
   MAX_LIKES_PER_VISITOR,
   openDatabase,
+  seedProjectReferencesOnce,
   seedProjectSamplesOnce,
   seedProjectsOnce,
   setProjectFeatured,
@@ -173,5 +178,81 @@ describe("project samples", () => {
     assert.deepEqual(byTitle.get("Has own samples"), ["mine.png"]);
     assert.equal(byTitle.size, 2);
     assert.equal(seedProjectSamplesOnce(db, seed), false);
+  });
+});
+
+describe("retiring seed samples", () => {
+  test("removes seed samples that left the set and keeps the owner's uploads", () => {
+    const base = { summary: "A short description.", tags: [], featured: false, year: 2024 };
+    const id = addProject(db, { ...base, title: "Seeded", image: "seed-a.png" });
+    addProjectImage(db, { projectId: id, image: "seed-sample-a-1.png", caption: "" });
+    addProjectImage(db, { projectId: id, image: "owner-upload.png", caption: "" });
+    db.prepare("INSERT INTO meta (key, value) VALUES ('projects_seeded', 'earlier')").run();
+    assert.equal(seedProjectSamplesOnce(db, [{ ...base, title: "Seeded", image: "seed-a.png" }]), true);
+    assert.deepEqual(listProjects(db)[0].samples.map((s) => s.image), ["owner-upload.png"]);
+  });
+});
+
+describe("project references", () => {
+  const base = { summary: "A short description.", tags: [], featured: false, year: 2024 };
+
+  test("store kind, credit and source alongside samples", () => {
+    const id = addProject(db, { ...base, title: "P", image: "cover.png" });
+    addProjectImage(db, { projectId: id, image: "mine.png", caption: "Mine" });
+    addProjectImage(db, {
+      projectId: id,
+      image: "ref.png",
+      caption: "Theirs",
+      kind: "reference",
+      credit: "Studio X",
+      sourceUrl: "https://example.com/work",
+    });
+    const [mine, ref] = listProjects(db)[0].samples;
+    assert.equal(mine.kind, "sample");
+    assert.equal(mine.credit, "");
+    assert.deepEqual([ref.kind, ref.credit, ref.sourceUrl], ["reference", "Studio X", "https://example.com/work"]);
+  });
+
+  test("backfill references once onto existing seed projects", () => {
+    addProject(db, { ...base, title: "Seeded", image: "seed-a.png" });
+    db.prepare("INSERT INTO meta (key, value) VALUES ('projects_seeded', 'earlier')").run();
+    const seed = [{ ...base, title: "Seeded", image: "seed-a.png", references: [{ image: "r.png", caption: "c", credit: "X", sourceUrl: "https://x.test" }] }];
+    assert.equal(seedProjectReferencesOnce(db, seed), true);
+    assert.equal(seedProjectReferencesOnce(db, seed), false);
+    const [ref] = listProjects(db)[0].samples;
+    assert.deepEqual([ref.kind, ref.credit], ["reference", "X"]);
+  });
+
+  test("a new reference set adds only the images a project is missing", () => {
+    const id = addProject(db, { ...base, title: "Seeded", image: "seed-a.png" });
+    addProjectImage(db, { projectId: id, image: "r1.png", caption: "", kind: "reference", credit: "X", sourceUrl: "https://x.test" });
+    db.prepare("INSERT INTO meta (key, value) VALUES ('projects_seeded', 'earlier')").run();
+    const r = (image: string) => ({ image, caption: "", credit: "X", sourceUrl: "https://x.test" });
+    seedProjectReferencesOnce(db, [{ ...base, title: "Seeded", image: "seed-a.png", references: [r("r1.png"), r("r2.png")] }]);
+    assert.deepEqual(listProjects(db)[0].samples.map((s) => s.image), ["r1.png", "r2.png"]);
+  });
+
+  test("retired seed references are replaced; the owner's own uploads stay", () => {
+    const id = addProject(db, { ...base, title: "Seeded", image: "seed-a.png" });
+    const ref = (image: string) => ({ image, caption: "", kind: "reference" as const, credit: "X", sourceUrl: "https://x.test" });
+    addProjectImage(db, { projectId: id, ...ref("seed-ref-old.png") });
+    addProjectImage(db, { projectId: id, ...ref("owner-upload.png") });
+    db.prepare("INSERT INTO meta (key, value) VALUES ('projects_seeded', 'earlier')").run();
+    seedProjectReferencesOnce(db, [{ ...base, title: "Seeded", image: "seed-a.png", references: [ref("seed-ref-new.png")] }]);
+    assert.deepEqual(listProjects(db)[0].samples.map((s) => s.image), ["owner-upload.png", "seed-ref-new.png"]);
+  });
+
+  test("databases created before references existed gain the new columns", () => {
+    const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "portfolio-test-")), "old.db");
+    const old = new DatabaseSync(file);
+    old.exec(`CREATE TABLE project_images (
+      id INTEGER PRIMARY KEY AUTOINCREMENT, project_id INTEGER NOT NULL, image TEXT NOT NULL,
+      caption TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT (datetime('now')));
+      INSERT INTO project_images (project_id, image, caption) VALUES (1, 'old.png', 'Old');`);
+    old.close();
+    const migrated = openDatabase(file);
+    const row = migrated.prepare("SELECT kind, credit, source_url FROM project_images").get() as Record<string, string>;
+    assert.deepEqual({ ...row }, { kind: "sample", credit: "", source_url: "" });
+    migrated.close();
   });
 });

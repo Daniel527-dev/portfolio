@@ -43,7 +43,7 @@
 }
 
 :global([data-theme="dark"]) .filter[aria-current="page"] {
-  color: hsl(232deg 30% 9%);
+  color: hsl(22deg 14% 8%);
 }
 
 .filter[aria-current="page"] span {

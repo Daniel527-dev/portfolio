@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
+import { motionAllowed } from "@/lib/motion";
 import styles from "./RotatingWord.module.css";
 
 // Cycles through a few words in place. Each new word is "written" in from left to
@@ -16,7 +17,7 @@ export default function RotatingWord({ words }: { words: string[] }) {
   const gradientId = `rw${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
 
   useEffect(() => {
-    if (!document.documentElement.hasAttribute("data-motion") || words.length < 2) return;
+    if (!motionAllowed() || words.length < 2) return;
     const id = window.setInterval(() => {
       setState((s) => ({ index: (s.index + 1) % words.length, previous: s.index }));
     }, INTERVAL);

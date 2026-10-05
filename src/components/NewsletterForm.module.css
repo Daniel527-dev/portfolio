@@ -72,12 +72,12 @@
   background: var(--color-primary);
   color: white;
   font-weight: 600;
-  box-shadow: 0 6px 18px hsl(250deg 80% 55% / 0.35);
+  box-shadow: 0 6px 18px hsl(var(--shadow-color) / 0.3);
   transition: transform 300ms var(--ease-spring), filter 200ms;
 }
 
 :global([data-theme="dark"]) .button {
-  color: hsl(232deg 30% 9%);
+  color: hsl(22deg 14% 8%);
 }
 
 .button:hover {

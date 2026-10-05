@@ -4,9 +4,10 @@ import { getDb, getProject } from "@/lib/db";
 import { createProjectImage } from "@/lib/projects";
 import { isSameOrigin } from "@/lib/request";
 import { ImageError, MAX_IMAGE_BYTES } from "@/lib/storage";
-import { validateCaption } from "@/lib/validation";
+import { validateGalleryImage } from "@/lib/validation";
 
-// Owner-only: add a sample image to a project's gallery (multipart: image, caption).
+// Owner-only: add an image to a project's gallery. Multipart: image, caption, kind
+// ("sample" | "reference"), and for references credit + sourceUrl.
 export async function POST(req: Request, ctx: RouteContext<"/api/projects/[id]/images">) {
   if (!isSameOrigin(req)) return Response.json({ error: "Cross-site request blocked." }, { status: 403 });
   if (!(await isOwner())) return Response.json({ error: "Sign in with Google to upload." }, { status: 401 });
@@ -21,16 +22,17 @@ export async function POST(req: Request, ctx: RouteContext<"/api/projects/[id]/i
     return Response.json({ error: "Send the image as multipart/form-data." }, { status: 400 });
   }
 
-  const caption = validateCaption(form.get("caption"));
+  const fields = Object.fromEntries([...form.entries()].filter(([, v]) => typeof v === "string"));
+  const details = validateGalleryImage(fields);
   const image = form.get("image");
-  const errors: Record<string, string> = caption.ok ? {} : { ...caption.errors };
+  const errors: Record<string, string> = details.ok ? {} : { ...details.errors };
   if (!(image instanceof File) || image.size === 0) errors.image = "Choose an image.";
   else if (image.size > MAX_IMAGE_BYTES) errors.image = "Images must be 8 MB or smaller.";
-  if (!caption.ok || Object.keys(errors).length > 0) return Response.json({ errors }, { status: 422 });
+  if (!details.ok || Object.keys(errors).length > 0) return Response.json({ errors }, { status: 422 });
 
   try {
     const bytes = new Uint8Array(await (image as File).arrayBuffer());
-    const id = createProjectImage(projectId, caption.data, bytes);
+    const id = createProjectImage(projectId, details.data, bytes);
     revalidatePath("/projects");
     revalidatePath("/");
     return Response.json({ ok: true, id }, { status: 201 });

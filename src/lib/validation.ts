@@ -83,3 +83,39 @@ export function validateCaption(value: unknown): Result<string> {
     return { ok: false, errors: { caption: `Keep the caption under ${MAX_CAPTION_LENGTH} characters.` } };
   return { ok: true, data: caption };
 }
+
+export type GalleryImageInput = {
+  caption: string;
+  kind: "sample" | "reference";
+  credit: string;
+  sourceUrl: string;
+};
+
+/**
+ * A gallery image is either the owner's own sample or a reference to someone
+ * else's work. References must say who made them and link to the original.
+ */
+export function validateGalleryImage(input: Record<string, unknown>): Result<GalleryImageInput> {
+  const errors: Record<string, string> = {};
+  const caption = validateCaption(input.caption);
+  if (!caption.ok) Object.assign(errors, caption.errors);
+  const kind = str(input.kind) === "reference" ? "reference" : "sample";
+  let credit = "";
+  let sourceUrl = "";
+
+  if (kind === "reference") {
+    credit = str(input.credit);
+    sourceUrl = str(input.sourceUrl);
+    if (!credit) errors.credit = "Say who made this work.";
+    else if (credit.length > 80) errors.credit = "Keep the credit under 80 characters.";
+    let url: URL | null = null;
+    try {
+      url = new URL(sourceUrl);
+    } catch {}
+    if (!url || !["http:", "https:"].includes(url.protocol) || sourceUrl.length > 500)
+      errors.sourceUrl = "Link to the original work (an http or https address).";
+  }
+
+  if (Object.keys(errors).length > 0) return { ok: false, errors };
+  return { ok: true, data: { caption: (caption as { data: string }).data, kind, credit, sourceUrl } };
+}

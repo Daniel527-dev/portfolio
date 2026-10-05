@@ -30,30 +30,6 @@ export const SearchIcon = (p: IconProps) => (
   </Icon>
 );
 
-export const RssIcon = (p: IconProps) => (
-  <Icon {...p}>
-    <path d="M4 11a9 9 0 0 1 9 9" />
-    <path d="M4 4a16 16 0 0 1 16 16" />
-    <circle cx="5" cy="19" r="1" />
-  </Icon>
-);
-
-export const VolumeOnIcon = (p: IconProps) => (
-  <Icon {...p}>
-    <path d="M11 5 6 9H2v6h4l5 4V5z" />
-    <path d="M15.5 8.5a5 5 0 0 1 0 7" />
-    <path d="M19 5a10 10 0 0 1 0 14" />
-  </Icon>
-);
-
-export const VolumeOffIcon = (p: IconProps) => (
-  <Icon {...p}>
-    <path d="M11 5 6 9H2v6h4l5 4V5z" />
-    <path d="m22 9-6 6" />
-    <path d="m16 9 6 6" />
-  </Icon>
-);
-
 export const MenuIcon = (p: IconProps) => (
   <Icon {...p}>
     <path d="M4 7h16M4 12h16M4 17h16" />

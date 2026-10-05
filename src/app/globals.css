@@ -2,7 +2,8 @@
 
 :root {
   --font-body: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-display: var(--font-cormorant), var(--font-fraunces), Georgia, serif;
+  --font-logo: var(--font-display);
   --font-mono: var(--font-jetbrains), ui-monospace, "Cascadia Code", Consolas, monospace;
 
   --content-width: 1100px;
@@ -20,72 +21,73 @@
 :root,
 :root[data-theme="light"] {
   color-scheme: light;
-  --color-bg: hsl(225deg 60% 98%);
-  --color-surface: hsl(0deg 0% 100%);
-  --color-surface-2: hsl(228deg 50% 96%);
-  --color-text: hsl(228deg 28% 13%);
-  --color-muted: hsl(228deg 12% 40%);
-  --color-faint: hsl(228deg 12% 60%);
-  --color-border: hsl(228deg 30% 89%);
-  --color-primary: hsl(250deg 84% 57%);
-  --color-primary-soft: hsl(250deg 90% 95%);
-  --color-secondary: hsl(338deg 90% 52%);
-  --color-tertiary: hsl(44deg 100% 54%);
+  /* Warm ivory, charcoal ink and rose-gold, taken from the logo. */
+  --color-bg: hsl(36deg 62% 96%);
+  --color-surface: hsl(36deg 70% 99%);
+  --color-surface-2: hsl(32deg 40% 93%);
+  --color-text: hsl(20deg 14% 13%);
+  --color-muted: hsl(20deg 9% 37%);
+  --color-faint: hsl(22deg 8% 54%);
+  --color-border: hsl(30deg 26% 86%);
+  --color-primary: hsl(16deg 26% 37%);
+  --color-primary-soft: hsl(24deg 40% 92%);
+  --color-secondary: hsl(14deg 34% 46%);
+  --color-tertiary: hsl(26deg 38% 68%);
   --color-success: hsl(160deg 70% 34%);
   --color-success-soft: hsl(160deg 60% 94%);
   --color-warning: hsl(32deg 95% 42%);
   --color-warning-soft: hsl(40deg 100% 93%);
   --color-error: hsl(355deg 80% 50%);
-  --color-hero: hsl(250deg 90% 96%);
-  --color-hero-2: hsl(330deg 90% 96%);
-  --color-footer: hsl(228deg 40% 94%);
-  --color-code-bg: hsl(228deg 40% 97%);
-  --shadow-color: 228deg 40% 50%;
+  --color-hero: hsl(36deg 64% 95%);
+  --color-hero-2: hsl(20deg 46% 92%);
+  --color-footer: hsl(32deg 36% 92%);
+  --color-code-bg: hsl(34deg 40% 97%);
+  --shadow-color: 22deg 30% 35%;
 
-  --sh-class: hsl(250deg 70% 50%);
-  --sh-identifier: hsl(228deg 28% 20%);
-  --sh-sign: hsl(228deg 12% 50%);
+  --sh-class: hsl(16deg 40% 38%);
+  --sh-identifier: hsl(20deg 14% 18%);
+  --sh-sign: hsl(22deg 9% 48%);
   --sh-property: hsl(210deg 80% 40%);
   --sh-entity: hsl(338deg 80% 45%);
-  --sh-jsxliterals: hsl(250deg 70% 50%);
+  --sh-jsxliterals: hsl(16deg 40% 38%);
   --sh-string: hsl(160deg 70% 30%);
   --sh-keyword: hsl(338deg 85% 48%);
-  --sh-comment: hsl(228deg 10% 55%);
+  --sh-comment: hsl(22deg 8% 55%);
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --color-bg: hsl(232deg 30% 9%);
-  --color-surface: hsl(232deg 28% 13%);
-  --color-surface-2: hsl(232deg 26% 16%);
-  --color-text: hsl(225deg 35% 94%);
-  --color-muted: hsl(226deg 18% 70%);
-  --color-faint: hsl(226deg 14% 52%);
-  --color-border: hsl(232deg 22% 22%);
-  --color-primary: hsl(250deg 100% 76%);
-  --color-primary-soft: hsl(250deg 40% 20%);
-  --color-secondary: hsl(335deg 100% 70%);
-  --color-tertiary: hsl(46deg 100% 62%);
+  --color-bg: hsl(22deg 14% 8%);
+  --color-surface: hsl(22deg 12% 11%);
+  --color-surface-2: hsl(22deg 10% 15%);
+  --color-text: hsl(34deg 40% 92%);
+  --color-muted: hsl(28deg 12% 70%);
+  --color-faint: hsl(26deg 9% 52%);
+  --color-border: hsl(22deg 10% 21%);
+  --color-primary: hsl(22deg 48% 74%);
+  --color-primary-soft: hsl(20deg 18% 18%);
+  --color-secondary: hsl(14deg 52% 72%);
+  --color-tertiary: hsl(30deg 46% 70%);
   --color-success: hsl(160deg 60% 60%);
   --color-success-soft: hsl(160deg 40% 14%);
   --color-warning: hsl(40deg 95% 62%);
   --color-warning-soft: hsl(36deg 50% 14%);
   --color-error: hsl(355deg 90% 70%);
-  --color-hero: hsl(250deg 40% 14%);
-  --color-hero-2: hsl(320deg 40% 13%);
-  --color-footer: hsl(232deg 32% 7%);
-  --color-code-bg: hsl(232deg 30% 7%);
-  --shadow-color: 232deg 50% 3%;
+  --color-hero: hsl(24deg 16% 11%);
+  --color-hero-2: hsl(14deg 20% 12%);
+  --color-footer: hsl(22deg 14% 6%);
+  --color-code-bg: hsl(22deg 14% 6%);
+  --shadow-color: 22deg 40% 3%;
 
-  --sh-class: hsl(250deg 100% 80%);
-  --sh-identifier: hsl(225deg 35% 90%);
-  --sh-sign: hsl(226deg 14% 62%);
+  --sh-class: hsl(22deg 60% 78%);
+  --sh-identifier: hsl(34deg 35% 90%);
+  --sh-sign: hsl(28deg 10% 62%);
   --sh-property: hsl(195deg 90% 70%);
   --sh-entity: hsl(335deg 100% 75%);
-  --sh-jsxliterals: hsl(250deg 100% 80%);
+  --sh-jsxliterals: hsl(22deg 60% 78%);
   --sh-string: hsl(150deg 60% 65%);
   --sh-keyword: hsl(335deg 100% 72%);
-  --sh-comment: hsl(226deg 12% 50%);
+  --sh-comment: hsl(26deg 8% 50%);
 }
 
 /* ---------- reset ---------- */
@@ -108,6 +110,41 @@ html {
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
+  }
+}
+
+/* ---------- scrollbar ---------- */
+
+/* A slim rose-gold thumb on a transparent track. Chrome, Edge and Firefox use the
+   standard properties; Safari, which lacks them, falls back to ::-webkit-scrollbar. */
+:root {
+  --scrollbar-thumb: color-mix(in srgb, var(--color-tertiary) 75%, var(--color-text) 10%);
+  --scrollbar-thumb-hover: var(--color-primary);
+}
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+@supports not (scrollbar-color: auto) {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background: var(--scrollbar-thumb) padding-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover) padding-box;
   }
 }
 
@@ -150,6 +187,8 @@ h3,
 h4 {
   font-family: var(--font-display);
   font-weight: 600;
+  /* Cormorant defaults to old-style figures; keep numbers at cap height. */
+  font-variant-numeric: lining-nums;
   line-height: 1.2;
   letter-spacing: -0.01em;
   text-wrap: balance;
