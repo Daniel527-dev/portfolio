@@ -433,7 +433,7 @@ export function seedProjectsOnce(db: DatabaseSync, projects: SeedProject[]) {
 }
 
 /** Bump when the seed samples change, so existing databases are brought in line. */
-const SAMPLES_FLAG = "project_samples_seeded_v2";
+const SAMPLES_FLAG = "project_samples_seeded_v6";
 
 /**
  * Brings each seed project's starting samples in line with the current set, once per
@@ -468,7 +468,7 @@ export function seedProjectSamplesOnce(db: DatabaseSync, projects: SeedProject[]
  * Bump when the seed references change, so existing databases pick up the new ones.
  * Each version runs once; images a project already has are never added twice.
  */
-const REFERENCES_FLAG = "project_references_seeded_v5";
+const REFERENCES_FLAG = "project_references_seeded_v7";
 
 /**
  * For databases seeded before the current reference set: brings each seed project's

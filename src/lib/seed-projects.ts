@@ -1,8 +1,6 @@
-// The work history the site starts with, taken from the resume. Each entry's cover
-// is a title card and its references are other designers' work, shown credited and
-// linked. Seed images live in public/projects/ and are served as static files; the
-// owner's own uploads (including sample images) go through /admin and
-// /api/projects/images.
+// The work history the site starts with, taken from the resume: a cover per project
+// and, for some, Ana's own sample images. Seed images live in public/projects/ and
+// are served as static files; uploads go through /admin and /api/projects/images.
 
 export const SEED_IMAGE_PREFIX = "seed-";
 
@@ -14,14 +12,9 @@ export const seedProjects = [
     year: 2025,
     tags: ["Design Systems", "Figma", "Design Tokens", "Tailwind CSS", "React"],
     image: "seed-multi-brand-design-system.png",
-    // Other designers' work, shown credited as inspiration, never as Ana's.
-    references: [
-      {
-        image: "seed-ref-wise-design-system.gif",
-        caption: "Wise multi-brand design system.",
-        credit: "Ness Grixti",
-        sourceUrl: "https://nessgrixti.com/portfolio/wise-multi-brand/",
-      },
+    // Ana's own work.
+    samples: [
+      { image: "seed-sample-harbor-roast-logo.png", caption: "Harbor Roast: logo for a neighborhood café." },
     ],
     featured: true,
   },
@@ -32,20 +25,9 @@ export const seedProjects = [
     year: 2024,
     tags: ["Brand Identity", "Web Design", "A/B Testing", "Workshops"],
     image: "seed-enterprise-brand-web-redesigns.png",
-    // Other designers' work, shown credited as inspiration, never as Ana's.
-    references: [
-      {
-        image: "seed-ref-smartmoving-crm.png",
-        caption: "SmartMoving B2B SaaS website.",
-        credit: "Design Studio UI/UX",
-        sourceUrl: "https://www.designstudiouiux.com/case-study/b2b-saas-product-design/",
-      },
-      {
-        image: "seed-ref-clearbit-saas.jpg",
-        caption: "Clearbit website redesign.",
-        credit: "Ramotion",
-        sourceUrl: "https://www.ramotion.com/work/",
-      },
+    samples: [
+      { image: "Enterprise Brand.png", caption: "MuseoArte: website for a contemporary art museum." },
+      { image: "web Redesign.png", caption: "Luma: e-commerce storefront for a fashion and lifestyle brand." },
     ],
     featured: true,
   },
@@ -56,20 +38,10 @@ export const seedProjects = [
     year: 2023,
     tags: ["React", "TypeScript", "Next.js", "Accessibility", "Core Web Vitals"],
     image: "seed-production-ui-react-nextjs.png",
-    // Other designers' work, shown credited as inspiration, never as Ana's.
-    references: [
-      {
-        image: "seed-ref-fabiano-norte-app.png",
-        caption: "norte, an AI planner app, responsive across laptop and phone.",
-        credit: "Fabiano Silva Santos",
-        sourceUrl: "https://contra.com/community/PzRfn26w-alguns-dos-meus-trabalhos",
-      },
-      {
-        image: "seed-ref-fabiano-condo-dashboard.png",
-        caption: "Condo OS: an operations dashboard with KPIs, charts and pending decisions.",
-        credit: "Fabiano Silva Santos",
-        sourceUrl: "https://contra.com/community/TFHsgMxo-trabalhos",
-      },
+    // Ana's own work.
+    samples: [
+      { image: "seed-sample-museoarte-exhibition-site.png", caption: "MuseoArte: website for a contemporary art museum." },
+      { image: "seed-sample-luma-ecommerce-site.png", caption: "Luma: e-commerce storefront for a fashion and lifestyle brand." },
     ],
     featured: false,
   },
@@ -80,14 +52,10 @@ export const seedProjects = [
     year: 2020,
     tags: ["UI Design", "Dashboards", "Data Visualization", "React"],
     image: "seed-parametric-search-dashboards.png",
-    // Other designers' work, shown credited as inspiration, never as Ana's.
-    references: [
-      {
-        image: "seed-ref-analytics-dashboard.png",
-        caption: "Enterprise SaaS analytics dashboard.",
-        credit: "Ishita Dey",
-        sourceUrl: "https://www.ishitadey.com/work/case-study-enterprise-saas-redesign",
-      },
+    // Ana's own work.
+    samples: [
+      { image: "research.png", caption: "parametric search" },
+      { image: "data Dashboard.png", caption: "Data dashboard for search results" },
     ],
     featured: true,
   },
@@ -98,26 +66,9 @@ export const seedProjects = [
     year: 2020,
     tags: ["Design Tokens", "Figma", "Git", "Automation"],
     image: "seed-figma-to-git-token-pipeline.png",
-    // Other designers' work, shown credited as inspiration, never as Ana's.
-    references: [
-      {
-        image: "seed-ref-fabiano-condo-flow.png",
-        caption: "Condo OS: a five-step flow from connecting data to better decisions.",
-        credit: "Fabiano Silva Santos",
-        sourceUrl: "https://contra.com/community/p890ZBed-trabalhos",
-      },
-      {
-        image: "seed-ref-fabiano-bzlimp-system.png",
-        caption: "BZ Limp: one visual system across website, dashboard and WhatsApp.",
-        credit: "Fabiano Silva Santos",
-        sourceUrl: "https://contra.com/community/kmrwdFs7-works",
-      },
-      {
-        image: "seed-ref-fabiano-ache-control-tower.png",
-        caption: "Aché logistics control tower: from data visibility to action, with data governance built in.",
-        credit: "Fabiano Silva Santos",
-        sourceUrl: "https://contra.com/community/gWfYPr2p-trabalhos",
-      },
+    samples: [
+      { image: "Figma.png", caption: "" },
+      { image: "pipeline.png", caption: "" },
     ],
     featured: false,
   },
@@ -128,32 +79,9 @@ export const seedProjects = [
     year: 2019,
     tags: ["Brand Systems", "Typography", "UI Kits", "Landing Pages"],
     image: "seed-brand-systems-digital-products.png",
-    // Other designers' work, shown credited as inspiration, never as Ana's.
-    references: [
-      {
-        image: "seed-ref-firefox-posters.jpg",
-        caption: "Firefox brand identity posters.",
-        credit: "Ramotion",
-        sourceUrl: "https://www.ramotion.com/work/",
-      },
-      {
-        image: "seed-ref-descript-poster.jpg",
-        caption: "Descript brand identity.",
-        credit: "Ramotion",
-        sourceUrl: "https://www.ramotion.com/work/",
-      },
-      {
-        image: "seed-ref-wise-platform.png",
-        caption: "Wise Platform sub-brand.",
-        credit: "Ness Grixti",
-        sourceUrl: "https://nessgrixti.com/portfolio/wise-multi-brand/",
-      },
-      {
-        image: "seed-ref-vimeo-reframe.jpg",
-        caption: "Vimeo REFRAME identity.",
-        credit: "Uncommon Creative Studio",
-        sourceUrl: "https://www.printmag.com/advertising/vimeo-reframe-identity-by-uncommon-creative-studio/",
-      },
+    samples: [
+      { image: "digital products.png", caption: "" },
+      { image: "digital Marketing.png", caption: "" },
     ],
     featured: false,
   },
@@ -164,20 +92,9 @@ export const seedProjects = [
     year: 2017,
     tags: ["Interactive", "WebGL", "Motion", "Storyboards"],
     image: "seed-interactive-campaigns.png",
-    // Other designers' work, shown credited as inspiration, never as Ana's.
-    references: [
-      {
-        image: "seed-ref-lando-norris.webp",
-        caption: "Lando Norris official website.",
-        credit: "OFF+BRAND",
-        sourceUrl: "https://www.itsoffbrand.com/our-work/lando-norris",
-      },
-      {
-        image: "seed-ref-igloo-inc.jpg",
-        caption: "Igloo Inc website.",
-        credit: "Abeto",
-        sourceUrl: "https://www.awwwards.com/sites/igloo-inc",
-      },
+    samples: [
+      { image: "interactive Campaign2.png", caption: "" },
+      { image: "interactive Campaign.png", caption: "" },
     ],
     featured: false,
   },

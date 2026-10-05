@@ -57,7 +57,7 @@
   background: linear-gradient(100deg, var(--color-primary), var(--color-secondary));
   color: white;
   font-weight: 600;
-  box-shadow: 0 8px 20px hsl(300deg 70% 50% / 0.3);
+  box-shadow: 0 8px 20px hsl(var(--shadow-color) / 0.3);
   transition: transform 300ms var(--ease-spring), filter 200ms;
 }
 

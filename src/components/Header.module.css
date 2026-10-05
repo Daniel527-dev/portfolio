@@ -3,7 +3,7 @@
   top: 0;
   z-index: 50;
   height: var(--header-height);
-  background: color-mix(in srgb, var(--color-bg) 78%, transparent);
+  background: color-mix(in srgb, var(--color-bg) 92%, transparent);
   backdrop-filter: blur(12px) saturate(1.4);
   -webkit-backdrop-filter: blur(12px) saturate(1.4);
   border-bottom: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent);
@@ -18,38 +18,68 @@
 
 /* ---------- logo ---------- */
 
+/* The AR monogram from the brand lockup, with the name set in Cormorant
+   Garamond capitals and a small tracked "UI Designer" line beneath. */
 .logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
   text-decoration: none;
   color: var(--color-text);
-  font-weight: 600;
-  font-size: 1.25rem;
-  letter-spacing: -0.02em;
-  font-family: var(--font-display);
 }
 
 .logoMark {
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-  color: white;
-  font-size: 0.9375rem;
-  letter-spacing: 0;
-  box-shadow: 0 4px 14px hsl(250deg 80% 55% / 0.35);
-  transition: transform 450ms var(--ease-spring);
+  width: auto;
+  height: 34px;
+  transition: transform 500ms var(--ease-spring);
+}
+
+/* The monogram is dark ink on transparent; flip it to warm cream in dark mode. */
+:global([data-theme="dark"]) .logoMark {
+  filter: invert(1) hue-rotate(180deg) brightness(0.94) sepia(0.12);
 }
 
 .logo:hover .logoMark {
-  transform: rotate(-12deg) scale(1.08);
+  transform: translateY(-1px) rotate(-3deg);
 }
 
-.logoAccent {
-  color: var(--color-primary);
+.logoText {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+.logoName {
+  font-family: var(--font-logo);
+  font-weight: 500;
+  font-size: 1.125rem;
+  line-height: 1;
+  letter-spacing: 0.24em;
+  margin-right: -0.24em;
+  text-transform: uppercase;
+}
+
+.logoRole {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 0.5625rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.32em;
+  margin-right: -0.32em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.logoRole::before,
+.logoRole::after {
+  content: "";
+  width: 12px;
+  height: 1px;
+  background: var(--color-tertiary);
 }
 
 /* ---------- nav ---------- */
@@ -153,8 +183,7 @@
 }
 
 @media (max-width: 760px) {
-  .nav,
-  .desktopOnly {
+  .nav {
     display: none;
   }
 

@@ -20,7 +20,16 @@ const MAX_THUMBS = 4;
 // labeled strip of references (other designers' work, credited by name). Any
 // image opens a dialog that pages through the whole set (buttons, arrow keys;
 // Esc or backdrop closes). Expects own images first, then references.
-export default function ProjectGallery({ title, images }: { title: string; images: GalleryImage[] }) {
+export default function ProjectGallery({
+  title,
+  images,
+  children,
+}: {
+  title: string;
+  images: GalleryImage[];
+  /** The card's text; clicking anywhere on it opens the gallery too. */
+  children?: React.ReactNode;
+}) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [index, setIndex] = useState(0);
   const count = images.length;
@@ -73,12 +82,30 @@ export default function ProjectGallery({ title, images }: { title: string; image
         onClick={() => open(0)}
         aria-label={`View images: ${title}${count > 1 ? ` (${count} images)` : ""}`}
       >
+        {/* The whole cover is always shown; a blurred copy fills any space around it,
+            so covers of any shape fit the 16:10 frame without cropping. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={images[0].src} alt="" aria-hidden="true" className={styles.coverBackdrop} loading="lazy" decoding="async" />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={images[0].src} alt={images[0].alt} className={styles.coverImg} loading="lazy" decoding="async" />
       </button>
 
       {strip(1, ownCount, "Sample images", false)}
       {strip(ownCount, count, "References", true)}
+
+      {children && (
+        // Mouse convenience only: the cover button above is the keyboard and
+        // screen-reader way to open the same gallery.
+        <div
+          className={styles.clickArea}
+          onClick={(e) => {
+            if ((e.target as HTMLElement).closest("a, button")) return;
+            open(0);
+          }}
+        >
+          {children}
+        </div>
+      )}
 
       <dialog
         ref={dialogRef}

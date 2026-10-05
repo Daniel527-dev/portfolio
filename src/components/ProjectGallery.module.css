@@ -11,10 +11,21 @@
   overflow: hidden;
 }
 
+.coverBackdrop {
+  position: absolute;
+  inset: -12%;
+  width: 124%;
+  height: 124%;
+  object-fit: cover;
+  filter: blur(22px) saturate(1.1);
+  opacity: 0.85;
+}
+
 .coverImg {
+  position: relative;
   width: 100%;
   aspect-ratio: 16 / 10;
-  object-fit: cover;
+  object-fit: contain;
   transition: transform 600ms var(--ease-out);
 }
 
@@ -59,7 +70,7 @@
   inset: 0;
   display: grid;
   place-items: center;
-  background: hsl(232deg 40% 8% / 0.55);
+  background: hsl(22deg 20% 8% / 0.55);
   color: white;
   font-weight: 600;
 }
@@ -113,6 +124,17 @@
   color: var(--color-muted);
 }
 
+/* ---------- card text ---------- */
+
+/* Wraps the card's text without adding a box, so the card layout is unchanged. */
+.clickArea {
+  display: contents;
+}
+
+.clickArea > * {
+  cursor: zoom-in;
+}
+
 /* ---------- dialog ---------- */
 
 .dialog {
@@ -130,7 +152,7 @@
 }
 
 .dialog::backdrop {
-  background: hsl(232deg 40% 6% / 0.75);
+  background: hsl(22deg 20% 6% / 0.75);
   backdrop-filter: blur(4px);
 }
 
@@ -214,8 +236,8 @@
   border: none;
   border-radius: 50%;
   background: hsl(0deg 0% 100% / 0.9);
-  color: hsl(232deg 30% 12%);
-  box-shadow: 0 4px 14px hsl(232deg 40% 8% / 0.25);
+  color: hsl(22deg 14% 12%);
+  box-shadow: 0 4px 14px hsl(22deg 20% 8% / 0.25);
   transition: transform 250ms var(--ease-spring), background-color 200ms;
 }
 
