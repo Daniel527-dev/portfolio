@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 
 export default function ProjectsPage() {
   const projects = listProjects(getDb());
-  getDb();
+
   return (
     <div className={`wrapper ${styles.page}`}>
       <p className="eyebrow" data-reveal>Work history</p>
