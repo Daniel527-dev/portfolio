@@ -1,4 +1,5 @@
 import { addMessage, getDb } from "@/lib/db";
+import { forwardContactMessage } from "@/lib/mail";
 import { clientIp, rateLimit, readJson } from "@/lib/request";
 import { validateContact } from "@/lib/validation";
 
@@ -15,6 +16,12 @@ export async function POST(req: Request) {
   if (!rateLimit(`contact:${clientIp(req)}`, 5, 10 * 60_000))
     return Response.json({ error: "You've sent a few messages already. Try again later." }, { status: 429 });
 
+  // Store first so nothing is lost if the email provider is down or misconfigured,
+  // then forward. The owner can also read messages at /admin.
   const id = addMessage(getDb(), result.data);
+  const forwarded = await forwardContactMessage(result.data);
+  if (!forwarded.ok && forwarded.reason !== "unconfigured") {
+    console.warn("[contact] failed to forward message", id, forwarded);
+  }
   return Response.json({ ok: true, id }, { status: 201 });
 }
